@@ -67,12 +67,10 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	// Set the encryptors
 	encryptors := make(map[reflect.Type]Encryptor)
 	encryptors[reflect.TypeOf(&aesPrivateKey{})] = &aescbcpkcs7Encryptor{}
-	encryptors[reflect.TypeOf(&sm4PrivateKey{})] = &sm4Encryptor{} //sm4 加密选项
 
 	// Set the decryptors
 	decryptors := make(map[reflect.Type]Decryptor)
 	decryptors[reflect.TypeOf(&aesPrivateKey{})] = &aescbcpkcs7Decryptor{}
-	decryptors[reflect.TypeOf(&sm4PrivateKey{})] = &sm4Decryptor{} //sm4 解密选项
 
 	// Set the signers
 	signers := make(map[reflect.Type]Signer)
@@ -93,7 +91,6 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	hashers[reflect.TypeOf(&bccsp.SHA384Opts{})] = &hasher{hash: sha512.New384}
 	hashers[reflect.TypeOf(&bccsp.SHA3_256Opts{})] = &hasher{hash: sha3.New256}
 	hashers[reflect.TypeOf(&bccsp.SHA3_384Opts{})] = &hasher{hash: sha3.New384}
-	hashers[reflect.TypeOf(&bccsp.GMSM3Opts{})] = &hasher{hash: NewSM3} //sm3 Hash选项
 
 	impl := &impl{
 		conf:       conf,
@@ -136,7 +133,6 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	keyImporters[reflect.TypeOf(&bccsp.ECDSAGoPublicKeyImportOpts{})] = &ecdsaGoPublicKeyImportOptsKeyImporter{}
 	keyImporters[reflect.TypeOf(&bccsp.RSAGoPublicKeyImportOpts{})] = &rsaGoPublicKeyImportOptsKeyImporter{}
 	keyImporters[reflect.TypeOf(&bccsp.X509PublicKeyImportOpts{})] = &x509PublicKeyImportOptsKeyImporter{bccsp: impl}
-	keyImporters[reflect.TypeOf(&bccsp.GMSM4ImportKeyOpts{})] = &gmsm4ImportKeyOptsKeyImporter{}
 
 	impl.keyImporters = keyImporters
 
@@ -145,16 +141,16 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 
 // SoftwareBasedBCCSP is the software-based implementation of the BCCSP.
 type impl struct {
-	conf *config        //bccsp实例的配置
-	ks   bccsp.KeyStore //key存储系统对象，存储和获取Key对象
+	conf *config
+	ks   bccsp.KeyStore
 
 	keyGenerators map[reflect.Type]KeyGenerator
 	keyDerivers   map[reflect.Type]KeyDeriver
 	keyImporters  map[reflect.Type]KeyImporter
-	encryptors    map[reflect.Type]Encryptor //加密者映射
-	decryptors    map[reflect.Type]Decryptor //解密者映射
-	signers       map[reflect.Type]Signer    //签名者映射，Key实现的类型作为映射的键
-	verifiers     map[reflect.Type]Verifier  //鉴定者映射，Key实现的类型作为映射的键
+	encryptors    map[reflect.Type]Encryptor
+	decryptors    map[reflect.Type]Decryptor
+	signers       map[reflect.Type]Signer
+	verifiers     map[reflect.Type]Verifier
 	hashers       map[reflect.Type]Hasher
 }
 

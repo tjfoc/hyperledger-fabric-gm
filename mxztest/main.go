@@ -1,5 +1,5 @@
 /*
-	teset demo
+	Teset demo
 */
 
 package main
@@ -12,13 +12,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-
+	"flag"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
-	"github.com/hyperledger/fabric/bccsp/sw"
-	// "github.com/hyperledger/fabric/bccsp/gm"
-	"flag"
-
+	swgm "github.com/hyperledger/fabric/bccsp/gm"
+	//"github.com/hyperledger/fabric/bccsp/sw"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/sha3"
 )
@@ -37,7 +35,7 @@ var (
 func initKeyStore() {
 
 	//fmt.Printf("os.path:%s \n", os.TempDir())
-	ks, err := sw.NewFileBasedKeyStore(nil, "/var/tmp/", false)
+	ks, err := swgm.NewFileBasedKeyStore(nil, "/var/tmp/gmks", false)
 	if err != nil {
 		fmt.Printf("Failed initiliazing KeyStore [%s]", err)
 		os.Exit(-1)
@@ -49,6 +47,7 @@ func initKeyStore() {
 		{256, "SHA3"},
 		{384, "SHA2"},
 		{384, "SHA3"},
+
 	}
 
 	// tests := []testConfig{
@@ -58,14 +57,56 @@ func initKeyStore() {
 	for _, config := range tests {
 		var err error
 		currentTestConfig = config
-
-		// currentBCCSP, err = gm.New(config.securityLevel, config.hashFamily, currentKS)
-		currentBCCSP, err = sw.New(config.securityLevel, config.hashFamily, currentKS)
+		//currentBCCSP, err = gm.New(config.securityLevel, config.hashFamily, currentKS)
+		 currentBCCSP, err = swgm.New(config.securityLevel, config.hashFamily, currentKS)
 		if err != nil {
 			fmt.Printf("Failed initiliazing BCCSP at [%d, %s]: [%s]", config.securityLevel, config.hashFamily, err)
 			os.Exit(-1)
 		}
 	}
+}
+
+func signVfy() {
+	//key,err := currentBCCSP.KeyGen(&bccsp.ECDSAKeyGenOpts{})
+	key, err := currentBCCSP.KeyGen(&bccsp.GMSM2KeyGenOpts{})
+
+	if err != nil {
+		fmt.Printf("keyGen error [%s] \n", err)
+	}
+
+	fmt.Println(key)
+
+	digest := []byte("hello world.this is my fabric!")
+
+	fmt.Print("puk is Private？")
+	fmt.Println(key.Private())
+
+	signer, err := currentBCCSP.Sign(key, digest, nil)
+	if err != nil {
+		fmt.Printf("Sign error [%s] \n", err)
+	}
+
+	puk, _ := key.PublicKey()
+
+	fmt.Print("puk is Private？")
+	fmt.Println(puk.Private())
+
+	//公钥延签
+	pukres, err := currentBCCSP.Verify(puk, signer, digest, nil)
+	if err != nil {
+		fmt.Printf("Verify error [%s] \n", err)
+	}
+	fmt.Print("公钥验签结果:")
+	fmt.Println(pukres)
+
+	//私钥验签 （内部将私钥转成了公钥）
+	res, err := currentBCCSP.Verify(key, signer, digest, nil)
+	if err != nil {
+		fmt.Printf("Verify error [%s] \n", err)
+	}
+	fmt.Print("私钥(内转)验签结果:")
+	fmt.Println(res)
+
 }
 
 func main() {
@@ -77,7 +118,9 @@ func main() {
 	// 	return
 	// }
 
-	//initKeyStore()
+	initKeyStore()
+
+	signVfy()
 
 	// diffHash(gbccsp)
 
@@ -86,20 +129,20 @@ func main() {
 	//sm4Crypto()
 
 	//f := &factory.SWFactory{}
-	f := &factory.GMFactory{}
+	// f := &factory.GMFactory{}
 
-	opts := &factory.FactoryOpts{
-		ProviderName: "GM",
-		SwOpts: &factory.SwOpts{
-			SecLevel:   256,
-			HashFamily: "SHA2",
-			// 		FileKeystore: &FileKeystoreOpts{KeyStorePath: os.TempDir()},
-		},
-	}
-	csp, err := f.Get(opts)
-	
-	fmt.Println(csp)
-	fmt.Println(err)
+	// opts := &factory.FactoryOpts{
+	// 	ProviderName: "GM",
+	// 	SwOpts: &factory.SwOpts{
+	// 		SecLevel:   256,
+	// 		HashFamily: "SHA2",
+	// 		// 		FileKeystore: &FileKeystoreOpts{KeyStorePath: os.TempDir()},
+	// 	},
+	// }
+	// csp, err := f.Get(opts)
+
+	// fmt.Println(csp)
+	// fmt.Println(err)
 }
 
 // ConfigBCCSP 配置

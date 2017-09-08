@@ -12,8 +12,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+Modified maoxiuze  by Tongji Fintech Research Institute on 2017-09-8
 */
-
 package bccsp
 
 const (
@@ -55,8 +55,12 @@ const (
 	AES192 = "AES192"
 	// AES Advanced Encryption Standard at 256 bit security level
 	AES256 = "AES256"
-
+	// GMSM4
 	GMSM4 = "GMSM4"
+	// GMSM3
+	GMSM3 = "GMSM3"
+	// GMSM2
+	GMSM2 = "GMSM2"
 
 	// HMAC keyed-hash message authentication code
 	HMAC = "HMAC"
@@ -82,9 +86,6 @@ const (
 	// SHA3_384
 	SHA3_384 = "SHA3_384"
 
-	// GMSM3
-	GMSM3 = "GMSM3"
-
 	// X509Certificate Label for X509 certificate related operation
 	X509Certificate = "X509Certificate"
 )
@@ -102,6 +103,22 @@ func (opts *ECDSAKeyGenOpts) Algorithm() string {
 // Ephemeral returns true if the key to generate has to be ephemeral,
 // false otherwise.
 func (opts *ECDSAKeyGenOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+// GMSM2KeyGenOpts contains options for GMSM2 key generation.
+type GMSM2KeyGenOpts struct {
+	Temporary bool
+}
+
+// Algorithm returns the key generation algorithm identifier (to be used).
+func (opts *GMSM2KeyGenOpts) Algorithm() string {
+	return GMSM2
+}
+
+// Ephemeral returns true if the key to generate has to be ephemeral,
+// false otherwise.
+func (opts *GMSM2KeyGenOpts) Ephemeral() bool {
 	return opts.Temporary
 }
 
