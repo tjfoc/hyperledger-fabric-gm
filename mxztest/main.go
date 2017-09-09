@@ -16,7 +16,6 @@ import (
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
 	swgm "github.com/hyperledger/fabric/bccsp/gm"
-	//"github.com/hyperledger/fabric/bccsp/sw"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/sha3"
 )
@@ -57,7 +56,6 @@ func initKeyStore() {
 	for _, config := range tests {
 		var err error
 		currentTestConfig = config
-		//currentBCCSP, err = gm.New(config.securityLevel, config.hashFamily, currentKS)
 		 currentBCCSP, err = swgm.New(config.securityLevel, config.hashFamily, currentKS)
 		if err != nil {
 			fmt.Printf("Failed initiliazing BCCSP at [%d, %s]: [%s]", config.securityLevel, config.hashFamily, err)
@@ -67,8 +65,8 @@ func initKeyStore() {
 }
 
 func signVfy() {
-	//key,err := currentBCCSP.KeyGen(&bccsp.ECDSAKeyGenOpts{})
-	key, err := currentBCCSP.KeyGen(&bccsp.GMSM2KeyGenOpts{})
+	key,err := currentBCCSP.KeyGen(&bccsp.ECDSAKeyGenOpts{})
+	//key, err := currentBCCSP.KeyGen(&bccsp.GMSM2KeyGenOpts{})
 
 	if err != nil {
 		fmt.Printf("keyGen error [%s] \n", err)
@@ -91,7 +89,7 @@ func signVfy() {
 	fmt.Print("puk is Private？")
 	fmt.Println(puk.Private())
 
-	//公钥延签
+	//公钥验签
 	pukres, err := currentBCCSP.Verify(puk, signer, digest, nil)
 	if err != nil {
 		fmt.Printf("Verify error [%s] \n", err)
@@ -109,6 +107,20 @@ func signVfy() {
 
 }
 
+//测试 GetKey 函数
+func testGetKey(keyname string){
+	fmt.Println("keyName :"+keyname)
+	ski,_ := hex.DecodeString(keyname)
+	k,err := currentBCCSP.GetKey(ski)
+	if err!=nil {
+		fmt.Printf("get ski key error [%s]\n",err)
+	}
+	fmt.Printf("key is privateKey? %v\n",k.Private())
+	fmt.Printf("key is symmetric ? %v\n",k.Symmetric())
+	fmt.Println()
+}
+
+
 func main() {
 
 	//ConfigBCCSP()
@@ -120,11 +132,30 @@ func main() {
 
 	initKeyStore()
 
-	signVfy()
+
+	//sw
+	//testGetKey("72367a05fd59d5938dc12062de48003883d6a6e11276d27492c01aee9e15a14c")
+	//testGetKey("e48dfc3d5fa53027ceec8ed12b19ae41c73d77004ae1905ceed3d1216ee7776b")
+
+	//gm
+	testGetKey("41390055e67944d29a27b6c4658027c40b7ad0b692b3afbcfffa6e4d59d75255")
+	testGetKey("411adf43201cb927a2f2ea8309a9ad73e7543373fa0d97be98abfc3ce6168a57") 
+
+	
+
+	//signVfy()
 
 	// diffHash(gbccsp)
 
-	//aesDecrypto()
+	// raw := []byte("0123456789ABCDEF0123456789ABCDEF")
+	// raw, _ := swgm.GetRandomBytes(32)
+	// fmt.Printf("keyByte：%x \n", raw)
+	// k, err := currentBCCSP.KeyImport(raw, &bccsp.AES256ImportKeyOpts{Temporary: false}) //AES128KeyGenOpts
+	// if err != nil {
+	// 	fmt.Printf("currentBCCSP.KeyImport err: [%s] ", err)
+	// }
+	// fmt.Println(k)
+	// aesDecrypto(k)
 
 	//sm4Crypto()
 
@@ -283,19 +314,9 @@ func diffHash(gbccsp bccsp.BCCSP) {
 }
 
 //AES
-func aesDecrypto() {
+func aesDecrypto(k bccsp.Key) {
 
 	fmt.Println("in aesDecrypto")
-
-	raw := []byte("0123456789ABCDEF0123456789ABCDEF")
-	//raw, _ := sw.GetRandomBytes(32)
-	fmt.Printf("keyByte：%x \n", raw)
-
-	k, err := currentBCCSP.KeyImport(raw, &bccsp.AES256ImportKeyOpts{Temporary: false}) //AES128KeyGenOpts
-	if err != nil {
-		fmt.Printf("currentBCCSP.KeyImport err: [%s] ", err)
-	}
-	fmt.Println(k)
 
 	ct, err := currentBCCSP.Encrypt(k, []byte("Hello World"), &bccsp.AESCBCPKCS7ModeOpts{})
 	if err != nil {

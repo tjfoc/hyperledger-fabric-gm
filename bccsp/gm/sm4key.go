@@ -17,7 +17,7 @@ package gm
 
 import (
 	"errors"
-
+	"crypto/sha256"
 	"github.com/hyperledger/fabric/bccsp"
 )
 
@@ -39,7 +39,8 @@ func (k *gmsm4PrivateKey) Bytes() (raw []byte, err error) {
 
 // SKI returns the subject key identifier of this key.
 func (k *gmsm4PrivateKey) SKI() (ski []byte) {
-	hash := NewSM3()
+	hash := sha256.New()
+	//hash := NewSM3()
 	hash.Write([]byte{0x01})
 	hash.Write(k.privKey)
 	return hash.Sum(nil)
