@@ -19,16 +19,14 @@ import (
 	"crypto/elliptic"
 	"crypto/sha256"
 	"crypto/x509"
-
 	"errors"
-
 	"fmt"
-
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/hyperledger/fabric/bccsp"
 )
 
 type gmsm2PrivateKey struct {
-	privKey *PrivateKey
+	privKey *sm2.PrivateKey
 }
 
 // Bytes converts this key to its byte representation,
@@ -71,7 +69,7 @@ func (k *gmsm2PrivateKey) PublicKey() (bccsp.Key, error) {
 }
 
 type gmsm2PublicKey struct {
-	pubKey *PublicKey
+	pubKey *sm2.PublicKey
 }
 
 // Bytes converts this key to its byte representation,

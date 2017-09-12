@@ -122,6 +122,23 @@ func (opts *GMSM2KeyGenOpts) Ephemeral() bool {
 	return opts.Temporary
 }
 
+
+// GMSM4KeyGenOpts contains options for GMSM2 key generation.
+type GMSM4KeyGenOpts struct {
+	Temporary bool
+}
+
+// Algorithm returns the key generation algorithm identifier (to be used).
+func (opts *GMSM4KeyGenOpts) Algorithm() string {
+	return GMSM4
+}
+
+// Ephemeral returns true if the key to generate has to be ephemeral,
+// false otherwise.
+func (opts *GMSM4KeyGenOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
 // ECDSAPKIXPublicKeyImportOpts contains options for ECDSA public key importation in PKIX format
 type ECDSAPKIXPublicKeyImportOpts struct {
 	Temporary bool

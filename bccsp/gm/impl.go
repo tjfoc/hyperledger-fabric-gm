@@ -20,6 +20,7 @@ import (
 	"reflect"
 
 	"github.com/hyperledger/fabric/bccsp"
+	"github.com/hyperledger/fabric/bccsp/gm/sm3"
 	"github.com/hyperledger/fabric/common/errors"
 	"github.com/hyperledger/fabric/common/flogging"
 )
@@ -62,7 +63,7 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 
 	// Set the hashers
 	hashers := make(map[reflect.Type]Hasher)
-	hashers[reflect.TypeOf(&bccsp.GMSM3Opts{})] = &hasher{hash: NewSM3} //sm3 Hash选项
+	hashers[reflect.TypeOf(&bccsp.GMSM3Opts{})] = &hasher{hash: sm3.New} //sm3 Hash选项
 
 	impl := &impl{
 		conf:       conf,
@@ -76,6 +77,7 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	// Set the key generators
 	keyGenerators := make(map[reflect.Type]KeyGenerator)
 	keyGenerators[reflect.TypeOf(&bccsp.GMSM2KeyGenOpts{})] = &gmsm2KeyGenerator{}
+	keyGenerators[reflect.TypeOf(&bccsp.GMSM4KeyGenOpts{})] = &gmsm4KeyGenerator{length: 16}
 	impl.keyGenerators = keyGenerators
 
 	// Set the key derivers

@@ -26,6 +26,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 )
 
 // struct to hold info required for PKCS#8
@@ -142,6 +144,12 @@ func PrivateKeyToPEM(privateKey interface{}, pwd []byte) ([]byte, error) {
 				Bytes: raw,
 			},
 		), nil
+
+	case *sm2.PrivateKey:
+		if k == nil {
+			return nil, errors.New("Invalid sm2 private key. It must be different from nil.")
+		}
+		return sm2.WritePrivateKeytoMem(k, nil)
 	default:
 		return nil, errors.New("Invalid key type. It must be *ecdsa.PrivateKey or *rsa.PrivateKey")
 	}
@@ -176,7 +184,12 @@ func PrivateKeyToEncryptedPEM(privateKey interface{}, pwd []byte) ([]byte, error
 		}
 
 		return pem.EncodeToMemory(block), nil
+	case *sm2.PrivateKey:
+		if k == nil {
+			return nil, errors.New("Invalid sm2 private key. It must be different from nil.")
+		}
 
+		return sm2.WritePrivateKeytoMem(k, pwd)
 	default:
 		return nil, errors.New("Invalid key type. It must be *ecdsa.PrivateKey")
 	}
@@ -184,7 +197,6 @@ func PrivateKeyToEncryptedPEM(privateKey interface{}, pwd []byte) ([]byte, error
 
 // DERToPrivateKey unmarshals a der to private key
 func DERToPrivateKey(der []byte) (key interface{}, err error) {
-
 	if key, err = x509.ParsePKCS1PrivateKey(der); err == nil {
 		return key, nil
 	}
@@ -216,7 +228,6 @@ func PEMtoPrivateKey(raw []byte, pwd []byte) (interface{}, error) {
 	}
 
 	// TODO: derive from header the type of the key
-
 	if x509.IsEncryptedPEMBlock(block) {
 		if len(pwd) == 0 {
 			return nil, errors.New("Encrypted Key. Need a password")
@@ -335,6 +346,12 @@ func PublicKeyToPEM(publicKey interface{}, pwd []byte) ([]byte, error) {
 				Bytes: PubASN1,
 			},
 		), nil
+	case *sm2.PublicKey:
+		if k == nil {
+			return nil, errors.New("Invalid sm2 public key. It must be different from nil.")
+		}
+
+		return sm2.WritePublicKeytoMem(k)
 
 	default:
 		return nil, errors.New("Invalid key type. It must be *ecdsa.PublicKey or *rsa.PublicKey")
@@ -406,6 +423,12 @@ func PublicKeyToEncryptedPEM(publicKey interface{}, pwd []byte) ([]byte, error) 
 		}
 
 		return pem.EncodeToMemory(block), nil
+	case *sm2.PublicKey:
+		if k == nil {
+			return nil, errors.New("Invalid ecdsa public key. It must be different from nil.")
+		}
+
+		return sm2.WritePublicKeytoMem(k)
 
 	default:
 		return nil, errors.New("Invalid key type. It must be *ecdsa.PublicKey")

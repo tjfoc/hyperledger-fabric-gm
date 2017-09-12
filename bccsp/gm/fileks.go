@@ -27,6 +27,8 @@ import (
 	"sync"
 
 	"github.com/hyperledger/fabric/bccsp"
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	"github.com/hyperledger/fabric/bccsp/gm/sm4"
 	"github.com/hyperledger/fabric/bccsp/utils"
 )
 
@@ -82,10 +84,8 @@ func (ks *fileBasedKeyStore) Init(pwd []byte, path string, readOnly bool) error 
 	if ks.isOpen {
 		return errors.New("KeyStore already initilized.")
 	}
-
 	ks.path = path
 	ks.pwd = utils.Clone(pwd)
-
 	err := ks.createKeyStoreIfNotExists()
 	if err != nil {
 		return err
@@ -133,8 +133,8 @@ func (ks *fileBasedKeyStore) GetKey(ski []byte) (k bccsp.Key, err error) {
 		}
 
 		switch key.(type) {
-		case *PrivateKey:
-			return &gmsm2PrivateKey{key.(*PrivateKey)}, nil
+		case *sm2.PrivateKey:
+			return &gmsm2PrivateKey{key.(*sm2.PrivateKey)}, nil
 		default:
 			return nil, errors.New("Secret key type not recognized")
 		}
@@ -146,8 +146,8 @@ func (ks *fileBasedKeyStore) GetKey(ski []byte) (k bccsp.Key, err error) {
 		}
 
 		switch key.(type) {
-		case *PublicKey:
-			return &gmsm2PublicKey{key.(*PublicKey)}, nil
+		case *sm2.PublicKey:
+			return &gmsm2PublicKey{key.(*sm2.PublicKey)}, nil
 		default:
 			return nil, errors.New("Public key type not recognized")
 		}
@@ -170,11 +170,7 @@ func (ks *fileBasedKeyStore) StoreKey(k bccsp.Key) (err error) {
 	case *gmsm2PrivateKey:
 		kk := k.(*gmsm2PrivateKey)
 
-		//使用自己实现的写入Key至磁盘方法
-		keypath := ks.getPathForAlias(hex.EncodeToString(k.SKI()), "sk")
-		_, err = WritePrivateKeytoPem(keypath, kk.privKey)
-
-		//err = ks.storePrivateKey(hex.EncodeToString(k.SKI()), kk.privKey)
+		err = ks.storePrivateKey(hex.EncodeToString(k.SKI()), kk.privKey)
 		if err != nil {
 			return fmt.Errorf("Failed storing GMSM2 private key [%s]", err)
 		}
@@ -182,11 +178,7 @@ func (ks *fileBasedKeyStore) StoreKey(k bccsp.Key) (err error) {
 	case *gmsm2PublicKey:
 		kk := k.(*gmsm2PublicKey)
 
-		//使用自己实现的写入Key至磁盘方法
-		keypath := ks.getPathForAlias(hex.EncodeToString(k.SKI()), "pk")
-		_, err = WritePublicKeytoPem(keypath, kk.pubKey)
-
-		//err = ks.storePublicKey(hex.EncodeToString(k.SKI()), kk.pubKey)
+		err = ks.storePublicKey(hex.EncodeToString(k.SKI()), kk.pubKey)
 		if err != nil {
 			return fmt.Errorf("Failed storing GMSM2 public key [%s]", err)
 		}
@@ -224,8 +216,8 @@ func (ks *fileBasedKeyStore) searchKeystoreForSKI(ski []byte) (k bccsp.Key, err 
 		}
 
 		switch key.(type) {
-		case *PrivateKey:
-			k = &gmsm2PrivateKey{key.(*PrivateKey)}
+		case *sm2.PrivateKey:
+			k = &gmsm2PrivateKey{key.(*sm2.PrivateKey)}
 		default:
 			continue
 		}
@@ -291,7 +283,9 @@ func (ks *fileBasedKeyStore) storePublicKey(alias string, publicKey interface{})
 }
 
 func (ks *fileBasedKeyStore) storeKey(alias string, key []byte) error {
-	pem, err := utils.AEStoEncryptedPEM(key, ks.pwd)
+	//pem, err := utils.AEStoEncryptedPEM(key, ks.pwd)
+	pem, err := sm4.WriteKeytoMem(key,ks.pwd)
+
 	if err != nil {
 		logger.Errorf("Failed converting key to PEM [%s]: [%s]", alias, err)
 		return err
@@ -317,7 +311,8 @@ func (ks *fileBasedKeyStore) loadPrivateKey(alias string) (interface{}, error) {
 		return nil, err
 	}
 
-	privateKey, err := utils.PEMtoPrivateKey(raw, ks.pwd)
+	//privateKey, err := utils.PEMtoPrivateKey(raw, ks.pwd)
+	privateKey, err := sm2.ReadPrivateKeyFromMem(raw, nil)
 	if err != nil {
 		logger.Errorf("Failed parsing private key [%s]: [%s].", alias, err.Error())
 
@@ -338,7 +333,8 @@ func (ks *fileBasedKeyStore) loadPublicKey(alias string) (interface{}, error) {
 		return nil, err
 	}
 
-	privateKey, err := utils.PEMtoPublicKey(raw, ks.pwd)
+	// privateKey, err := utils.PEMtoPublicKey(raw, ks.pwd)
+	privateKey, err := sm2.ReadPublicKeyFromMem(raw)
 	if err != nil {
 		logger.Errorf("Failed parsing private key [%s]: [%s].", alias, err.Error())
 
@@ -359,7 +355,8 @@ func (ks *fileBasedKeyStore) loadKey(alias string) ([]byte, error) {
 		return nil, err
 	}
 
-	key, err := utils.PEMtoAES(pem, ks.pwd)
+	//key, err := utils.PEMtoAES(pem, ks.pwd)
+	key, err := sm4.ReadKeyFromMem(pem,ks.pwd)
 	if err != nil {
 		logger.Errorf("Failed parsing key [%s]: [%s]", alias, err)
 

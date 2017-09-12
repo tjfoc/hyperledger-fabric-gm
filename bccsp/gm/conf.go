@@ -19,6 +19,8 @@ import (
 	"crypto/elliptic"
 	"fmt"
 	"hash"
+
+	"github.com/hyperledger/fabric/bccsp/gm/sm3"
 )
 
 type config struct {
@@ -37,12 +39,12 @@ func (conf *config) setSecurityLevelGMSM3(level int) (err error) {
 	switch level {
 	case 256:
 		conf.ellipticCurve = elliptic.P256()
-		conf.hashFunction = NewSM3
+		conf.hashFunction = sm3.New
 		conf.rsaBitLength = 2048
 		conf.aesBitLength = 32
 	case 384:
 		conf.ellipticCurve = elliptic.P384()
-		conf.hashFunction = NewSM3
+		conf.hashFunction = sm3.New
 		conf.rsaBitLength = 3072
 		conf.aesBitLength = 32
 	default:

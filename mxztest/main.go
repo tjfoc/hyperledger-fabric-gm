@@ -10,9 +10,10 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
-	"flag"
+
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
 	swgm "github.com/hyperledger/fabric/bccsp/gm"
@@ -34,7 +35,9 @@ var (
 func initKeyStore() {
 
 	//fmt.Printf("os.path:%s \n", os.TempDir())
+	// pwd := [] byte("abc")
 	ks, err := swgm.NewFileBasedKeyStore(nil, "/var/tmp/gmks", false)
+
 	if err != nil {
 		fmt.Printf("Failed initiliazing KeyStore [%s]", err)
 		os.Exit(-1)
@@ -46,7 +49,6 @@ func initKeyStore() {
 		{256, "SHA3"},
 		{384, "SHA2"},
 		{384, "SHA3"},
-
 	}
 
 	// tests := []testConfig{
@@ -56,7 +58,7 @@ func initKeyStore() {
 	for _, config := range tests {
 		var err error
 		currentTestConfig = config
-		 currentBCCSP, err = swgm.New(config.securityLevel, config.hashFamily, currentKS)
+		currentBCCSP, err = swgm.New(config.securityLevel, config.hashFamily, currentKS)
 		if err != nil {
 			fmt.Printf("Failed initiliazing BCCSP at [%d, %s]: [%s]", config.securityLevel, config.hashFamily, err)
 			os.Exit(-1)
@@ -64,20 +66,13 @@ func initKeyStore() {
 	}
 }
 
-func signVfy() {
-	key,err := currentBCCSP.KeyGen(&bccsp.ECDSAKeyGenOpts{})
+func testSignVfy(key bccsp.Key) {
+	//key, err := currentBCCSP.KeyGen(&bccsp.ECDSAKeyGenOpts{})
 	//key, err := currentBCCSP.KeyGen(&bccsp.GMSM2KeyGenOpts{})
-
-	if err != nil {
-		fmt.Printf("keyGen error [%s] \n", err)
-	}
-
-	fmt.Println(key)
 
 	digest := []byte("hello world.this is my fabric!")
 
-	fmt.Print("puk is Private？")
-	fmt.Println(key.Private())
+	fmt.Printf("key is Private？[%v]\n", key.Private())
 
 	signer, err := currentBCCSP.Sign(key, digest, nil)
 	if err != nil {
@@ -86,8 +81,7 @@ func signVfy() {
 
 	puk, _ := key.PublicKey()
 
-	fmt.Print("puk is Private？")
-	fmt.Println(puk.Private())
+	fmt.Printf("puk is Private？[%v]\n", puk.Private())
 
 	//公钥验签
 	pukres, err := currentBCCSP.Verify(puk, signer, digest, nil)
@@ -107,20 +101,6 @@ func signVfy() {
 
 }
 
-//测试 GetKey 函数
-func testGetKey(keyname string){
-	fmt.Println("keyName :"+keyname)
-	ski,_ := hex.DecodeString(keyname)
-	k,err := currentBCCSP.GetKey(ski)
-	if err!=nil {
-		fmt.Printf("get ski key error [%s]\n",err)
-	}
-	fmt.Printf("key is privateKey? %v\n",k.Private())
-	fmt.Printf("key is symmetric ? %v\n",k.Symmetric())
-	fmt.Println()
-}
-
-
 func main() {
 
 	//ConfigBCCSP()
@@ -132,20 +112,31 @@ func main() {
 
 	initKeyStore()
 
+	// key := testKeyGen()
+
+	// pk, err := key.PublicKey()
+	// if err != nil {
+	// 	fmt.Printf("get pk err:%s\n", err)
+	// }
+
+	// err = currentKS.StoreKey(pk)
+	// if err != nil {
+	// 	fmt.Printf("store err:%s\n", err)
+	// }
+
+	//testEncrypt(k)
 
 	//sw
-	//testGetKey("72367a05fd59d5938dc12062de48003883d6a6e11276d27492c01aee9e15a14c")
-	//testGetKey("e48dfc3d5fa53027ceec8ed12b19ae41c73d77004ae1905ceed3d1216ee7776b")
+	// testGetKey("73a43db63c75f8a80c1a206c4dcda1190c01dac09924c5985eb7dc55f96626c3")
+	// testGetKey("73a43db63c75f8a80c1a206c4dcda1190c01dac09924c5985eb7dc55f96626c3_pk")
 
 	//gm
-	testGetKey("41390055e67944d29a27b6c4658027c40b7ad0b692b3afbcfffa6e4d59d75255")
-	testGetKey("411adf43201cb927a2f2ea8309a9ad73e7543373fa0d97be98abfc3ce6168a57") 
+	key := testGetKey("014443fad64016faa63cf28472740c93acb378a5e3164e420d66423f43c91f9e")
+	// testGetKey("1b9f749a99c37d4e75191ad79aac545977ad0e04bfc96365502a7380a35d6363")
 
-	
+	testSignVfy(key)
 
-	//signVfy()
-
-	// diffHash(gbccsp)
+	// diffHash(currentBCCSP)
 
 	// raw := []byte("0123456789ABCDEF0123456789ABCDEF")
 	// raw, _ := swgm.GetRandomBytes(32)
@@ -174,6 +165,42 @@ func main() {
 
 	// fmt.Println(csp)
 	// fmt.Println(err)
+}
+
+//测试证书注册
+func testKeyGen() bccsp.Key {
+
+	//keyGenOpt := &bccsp.GMSM4KeyGenOpts{} //sm4
+	 keyGenOpt := &bccsp.GMSM2KeyGenOpts{} //sm2
+	//keyGenOpt := &bccsp.ECDSAKeyGenOpts{} //ecdsa
+
+	key, err := currentBCCSP.KeyGen(keyGenOpt)
+	if err != nil {
+		fmt.Printf("注册证书失败 :%s\n", err)
+	} else {
+		fmt.Printf("KeyGen successful. %T \n", keyGenOpt)
+	}
+
+	return key
+}
+
+//测试 GetKey 函数
+func testGetKey(keyname string) bccsp.Key{
+	fmt.Println("keyName :" + keyname)
+	ski, _ := hex.DecodeString(keyname)
+	k, err := currentBCCSP.GetKey(ski)
+	if err != nil {
+		fmt.Printf("get ski key error [%s]\n", err)
+	}
+	fmt.Printf("key is privateKey? %v\n", k.Private())
+	fmt.Printf("key is symmetric ? %v\n", k.Symmetric())
+	pk, err := k.PublicKey()
+	if err != nil {
+		fmt.Printf("get pk err: %s\n", err)
+	}
+	fmt.Printf("public key: %T\n", pk)
+	fmt.Println()
+	return k
 }
 
 // ConfigBCCSP 配置
@@ -264,14 +291,31 @@ func GetBCCSP() bccsp.BCCSP {
 
 // 比较 Hash
 func diffHash(gbccsp bccsp.BCCSP) {
-	s := "hello world"
+
+	// data, err := ioutil.ReadFile("/go/src/github.com/hyperledger/fabric/mxztest/ifile")
+	// if err!=nil {
+	// 	fmt.Printf("read file err [%s]\n",err)
+	// }
+	// msg := data
+
+	s := "abc"
 	msg := []byte(s)
+
 	var mdStr1 string
 
-	hashOpt := &bccsp.SHAOpts{}
-	//hashOpt := &bccsp.GMSM3Opts{}
+	//hashOpt := &bccsp.SHAOpts{}
+	hashOpt := &bccsp.GMSM3Opts{}
 
 	//fmt.Printf("SHA OPT [%s]\n", hashOpt.Algorithm())
+
+	hash, err := gbccsp.GetHash(hashOpt)
+	if err != nil {
+		fmt.Printf("GetHash err [%s]\n", err)
+	}
+
+	fmt.Printf("hash.size [%d]\n", hash.Size())
+	fmt.Printf("hash.blocksize [%d]\n", hash.BlockSize())
+
 	out, error := gbccsp.Hash(msg, hashOpt)
 	if error != nil {
 		fmt.Print("hash error:")
@@ -333,34 +377,26 @@ func aesDecrypto(k bccsp.Key) {
 	fmt.Printf("AES 解密：%s \n", msg)
 }
 
-//SM4
-func sm4Crypto() {
-	fmt.Println("in sm4Decrypto")
+//测试加解密
+func testEncrypt(k bccsp.Key) {
 	//data := []byte("Hello World")
 	data := []byte{0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10}
 
-	raw := []byte{0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10}
+	//raw := []byte{0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10}
 	//raw := []byte("0123456789ABCDEF0123456789ABCDEF")
 	//raw, _ := sw.GetRandomBytes(32)
-	fmt.Printf("key byte：%s \n", hex.EncodeToString(raw))
-
-	k, err := currentBCCSP.KeyImport(raw, &bccsp.GMSM4ImportKeyOpts{Temporary: true})
-	if err != nil {
-		fmt.Printf("currentBCCSP.KeyImport err: [%s] ", err)
-	}
-	fmt.Println(k)
+	//fmt.Printf("key byte：%s \n", hex.EncodeToString(raw))
 
 	ct, err := currentBCCSP.Encrypt(k, data, &bccsp.AESCBCPKCS7ModeOpts{})
 	if err != nil {
 		fmt.Printf("Encrypt err: [%s] ", err)
 	}
 	fmt.Printf("明文：[%s]\n", hex.EncodeToString(data))
-	fmt.Printf("SM4 加密：%s \n", hex.EncodeToString(ct))
+	fmt.Printf("SM4 加密：[%s] \n", hex.EncodeToString(ct))
 
 	pt, err := currentBCCSP.Decrypt(k, ct, &bccsp.AESCBCPKCS7ModeOpts{})
 	if err != nil {
 		fmt.Printf("Decrypt err: [%s] ", err)
 	}
-	fmt.Printf("SM4 解密：%s \n", hex.EncodeToString(pt))
-
+	fmt.Printf("SM4 解密：[%s] \n", hex.EncodeToString(pt))
 }
