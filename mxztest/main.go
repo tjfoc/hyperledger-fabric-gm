@@ -67,9 +67,6 @@ func initKeyStore() {
 }
 
 func testSignVfy(key bccsp.Key) {
-	//key, err := currentBCCSP.KeyGen(&bccsp.ECDSAKeyGenOpts{})
-	//key, err := currentBCCSP.KeyGen(&bccsp.GMSM2KeyGenOpts{})
-
 	digest := []byte("hello world.this is my fabric!")
 
 	fmt.Printf("key is Private？[%v]\n", key.Private())
@@ -112,7 +109,8 @@ func main() {
 
 	initKeyStore()
 
-	// key := testKeyGen()
+	//key := testKeyGen()
+	//fmt.Printf("key:%T",key)
 
 	// pk, err := key.PublicKey()
 	// if err != nil {
@@ -124,17 +122,20 @@ func main() {
 	// 	fmt.Printf("store err:%s\n", err)
 	// }
 
-	//testEncrypt(k)
+	
 
 	//sw
 	// testGetKey("73a43db63c75f8a80c1a206c4dcda1190c01dac09924c5985eb7dc55f96626c3")
 	// testGetKey("73a43db63c75f8a80c1a206c4dcda1190c01dac09924c5985eb7dc55f96626c3_pk")
 
 	//gm
-	key := testGetKey("014443fad64016faa63cf28472740c93acb378a5e3164e420d66423f43c91f9e")
-	// testGetKey("1b9f749a99c37d4e75191ad79aac545977ad0e04bfc96365502a7380a35d6363")
+	//key := testGetKey("014443fad64016faa63cf28472740c93acb378a5e3164e420d66423f43c91f9e")
+	k := testGetKey("465d5a6bd08ba1722564e4b92c8e34247d9a6be31f108a4378020b09a82d673f")
 
-	testSignVfy(key)
+
+	 testEncrypt(k)
+
+	//testSignVfy(key)
 
 	// diffHash(currentBCCSP)
 
@@ -170,8 +171,8 @@ func main() {
 //测试证书注册
 func testKeyGen() bccsp.Key {
 
-	//keyGenOpt := &bccsp.GMSM4KeyGenOpts{} //sm4
-	 keyGenOpt := &bccsp.GMSM2KeyGenOpts{} //sm2
+	keyGenOpt := &bccsp.GMSM4KeyGenOpts{} //sm4
+	//  keyGenOpt := &bccsp.GMSM2KeyGenOpts{} //sm2
 	//keyGenOpt := &bccsp.ECDSAKeyGenOpts{} //ecdsa
 
 	key, err := currentBCCSP.KeyGen(keyGenOpt)
@@ -380,7 +381,9 @@ func aesDecrypto(k bccsp.Key) {
 //测试加解密
 func testEncrypt(k bccsp.Key) {
 	//data := []byte("Hello World")
-	data := []byte{0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10}
+	//data := []byte{0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10}
+
+	data := []byte("this is plaintext")
 
 	//raw := []byte{0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10}
 	//raw := []byte("0123456789ABCDEF0123456789ABCDEF")
@@ -391,7 +394,7 @@ func testEncrypt(k bccsp.Key) {
 	if err != nil {
 		fmt.Printf("Encrypt err: [%s] ", err)
 	}
-	fmt.Printf("明文：[%s]\n", hex.EncodeToString(data))
+	fmt.Printf("明文：[%s]\n", (),hex.EncodeToString(data))
 	fmt.Printf("SM4 加密：[%s] \n", hex.EncodeToString(ct))
 
 	pt, err := currentBCCSP.Decrypt(k, ct, &bccsp.AESCBCPKCS7ModeOpts{})

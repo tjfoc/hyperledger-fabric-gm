@@ -351,7 +351,7 @@ func PublicKeyToPEM(publicKey interface{}, pwd []byte) ([]byte, error) {
 			return nil, errors.New("Invalid sm2 public key. It must be different from nil.")
 		}
 
-		return sm2.WritePublicKeytoMem(k)
+		return sm2.WritePublicKeytoMem(k,nil)
 
 	default:
 		return nil, errors.New("Invalid key type. It must be *ecdsa.PublicKey or *rsa.PublicKey")
@@ -428,7 +428,7 @@ func PublicKeyToEncryptedPEM(publicKey interface{}, pwd []byte) ([]byte, error) 
 			return nil, errors.New("Invalid ecdsa public key. It must be different from nil.")
 		}
 
-		return sm2.WritePublicKeytoMem(k)
+		return sm2.WritePublicKeytoMem(k,nil)
 
 	default:
 		return nil, errors.New("Invalid key type. It must be *ecdsa.PublicKey")

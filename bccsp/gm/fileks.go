@@ -334,7 +334,7 @@ func (ks *fileBasedKeyStore) loadPublicKey(alias string) (interface{}, error) {
 	}
 
 	// privateKey, err := utils.PEMtoPublicKey(raw, ks.pwd)
-	privateKey, err := sm2.ReadPublicKeyFromMem(raw)
+	privateKey, err := sm2.ReadPublicKeyFromMem(raw,nil)
 	if err != nil {
 		logger.Errorf("Failed parsing private key [%s]: [%s].", alias, err.Error())
 

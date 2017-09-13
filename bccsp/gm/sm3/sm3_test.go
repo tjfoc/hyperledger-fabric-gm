@@ -39,7 +39,7 @@ func TestSm3(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	hw := NewSM3()
+	hw := New()
 	hw.Write(msg)
 	hash := hw.Sum(nil)
 	fmt.Println(hash)
