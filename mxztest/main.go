@@ -10,8 +10,10 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/pem"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/hyperledger/fabric/bccsp"
@@ -109,8 +111,8 @@ func main() {
 
 	initKeyStore()
 
-	//key := testKeyGen()
-	//fmt.Printf("key:%T",key)
+	// key := testKeyGen()
+	// fmt.Printf("key:%T", key)
 
 	// pk, err := key.PublicKey()
 	// if err != nil {
@@ -122,20 +124,31 @@ func main() {
 	// 	fmt.Printf("store err:%s\n", err)
 	// }
 
-	
-
 	//sw
-	// testGetKey("73a43db63c75f8a80c1a206c4dcda1190c01dac09924c5985eb7dc55f96626c3")
-	// testGetKey("73a43db63c75f8a80c1a206c4dcda1190c01dac09924c5985eb7dc55f96626c3_pk")
+	//k := testGetKey("fafc10181e994b3dc52f6080f3a8009ce3b51f6058818f8f1348eed8f0125a6b")
+	//testGetKey("2f876f8c92c90537952b8387ed828bb85c7d37e1d6e1f9638956d8e5f01331f3")
+
+	// pk, err := k.PublicKey()
+	// if err != nil {
+	// 	fmt.Printf("get pk err:%s\n", err)
+	// }
+
+	// err = currentKS.StoreKey(pk)
+	// if err != nil {
+	// 	fmt.Printf("store err:%s\n", err)
+	// }
 
 	//gm
 	//key := testGetKey("014443fad64016faa63cf28472740c93acb378a5e3164e420d66423f43c91f9e")
-	k := testGetKey("465d5a6bd08ba1722564e4b92c8e34247d9a6be31f108a4378020b09a82d673f")
+	//k := testGetKey("04e44cd1fca0477de55c93a765482b74dc60d438a489e95798b864f77937f2aa")
 
+	testKeyImport()
 
-	 testEncrypt(k)
+	//testEncrypt(k)
 
-	//testSignVfy(key)
+	// testSignVfy(key)
+
+	
 
 	// diffHash(currentBCCSP)
 
@@ -168,12 +181,52 @@ func main() {
 	// fmt.Println(err)
 }
 
+//测试 KeyImport 函数
+func testKeyImport() bccsp.Key {
+	fmt.Println("begin   xxxx  testKeyImport  xxxxx ")
+
+	//非对称密钥 与 AES KeyImport 都是 der
+	raw, err := ioutil.ReadFile("/var/tmp/ee663eea08b4a090ac2875c598265c3d6ad936a403324c2d75d9a1be50da5ed0_key")
+	if err != nil {
+		fmt.Printf("ReadFile error [%s]\n", err)
+	}
+	block, _ := pem.Decode(raw)
+	der := block.Bytes
+
+	fmt.Printf("der.len[%d]\n", len(der))
+
+
+	// opts := &bccsp.AES256ImportKeyOpts{} //sw
+	//opts := &bccsp.ECDSAPrivateKeyImportOpts{} //sw
+	//opts := &bccsp.ECDSAPKIXPublicKeyImportOpts{} //sw
+
+	//opts := &bccsp.GMSM2PrivateKeyImportOpts{}
+	//opts := &bccsp.GMSM2PublicKeyImportOpts{}
+	opts := &bccsp.GMSM4ImportKeyOpts{}
+
+	k, err := currentBCCSP.KeyImport(der, opts)
+	if err != nil {
+		fmt.Printf("KeyImport error [%s]\n", err)
+	}
+
+	fmt.Printf("key is privateKey? %v\n", k.Private())
+	fmt.Printf("key is symmetric ? %v\n", k.Symmetric())
+	pk, err := k.PublicKey()
+	if err != nil {
+		fmt.Printf("get pk err: %s\n", err)
+	}
+	fmt.Printf("public key: %T\n", pk)
+	fmt.Println()
+	return k
+}
+
 //测试证书注册
 func testKeyGen() bccsp.Key {
 
 	keyGenOpt := &bccsp.GMSM4KeyGenOpts{} //sm4
-	//  keyGenOpt := &bccsp.GMSM2KeyGenOpts{} //sm2
+	//keyGenOpt := &bccsp.GMSM2KeyGenOpts{} //sm2
 	//keyGenOpt := &bccsp.ECDSAKeyGenOpts{} //ecdsa
+	// keyGenOpt := &bccsp.AES256KeyGenOpts{} //aes
 
 	key, err := currentBCCSP.KeyGen(keyGenOpt)
 	if err != nil {
@@ -186,8 +239,8 @@ func testKeyGen() bccsp.Key {
 }
 
 //测试 GetKey 函数
-func testGetKey(keyname string) bccsp.Key{
-	fmt.Println("keyName :" + keyname)
+func testGetKey(keyname string) bccsp.Key {
+	fmt.Println("xxxxx testGetKey  keyName :" + keyname)
 	ski, _ := hex.DecodeString(keyname)
 	k, err := currentBCCSP.GetKey(ski)
 	if err != nil {
@@ -380,10 +433,10 @@ func aesDecrypto(k bccsp.Key) {
 
 //测试加解密
 func testEncrypt(k bccsp.Key) {
-	//data := []byte("Hello World")
+	data := []byte("2222222222222222")//009d758db74fca117fdc4672b0176a24
 	//data := []byte{0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10}
 
-	data := []byte("this is plaintext")
+	//data := []byte("this is plaintext")
 
 	//raw := []byte{0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10}
 	//raw := []byte("0123456789ABCDEF0123456789ABCDEF")
@@ -394,12 +447,12 @@ func testEncrypt(k bccsp.Key) {
 	if err != nil {
 		fmt.Printf("Encrypt err: [%s] ", err)
 	}
-	fmt.Printf("明文：[%s]\n", (),hex.EncodeToString(data))
-	fmt.Printf("SM4 加密：[%s] \n", hex.EncodeToString(ct))
+	fmt.Printf("明文：len: %d [%s]\n", len(data),hex.EncodeToString(data))
+	fmt.Printf("SM4 加密：len:%d [%s] \n", len(ct),hex.EncodeToString(ct))
 
 	pt, err := currentBCCSP.Decrypt(k, ct, &bccsp.AESCBCPKCS7ModeOpts{})
 	if err != nil {
 		fmt.Printf("Decrypt err: [%s] ", err)
 	}
-	fmt.Printf("SM4 解密：[%s] \n", hex.EncodeToString(pt))
+	fmt.Printf("SM4 解密：len:%d [%s] \n",len(pt), hex.EncodeToString(pt))
 }

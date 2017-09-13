@@ -307,6 +307,40 @@ func (opts *GMSM4ImportKeyOpts) Ephemeral() bool {
 	return opts.Temporary
 }
 
+//GMSM2PrivateKeyImportOpts  实现  bccsp.KeyImportOpts 接口
+type GMSM2PrivateKeyImportOpts struct {
+	Temporary bool
+}
+
+// Algorithm returns the key importation algorithm identifier (to be used).
+func (opts *GMSM2PrivateKeyImportOpts) Algorithm() string {
+	return GMSM2
+}
+
+// Ephemeral returns true if the key generated has to be ephemeral,
+// false otherwise.
+func (opts *GMSM2PrivateKeyImportOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+//GMSM2PublicKeyImportOpts  实现  bccsp.KeyImportOpts 接口
+type GMSM2PublicKeyImportOpts struct {
+	Temporary bool
+}
+
+// Algorithm returns the key importation algorithm identifier (to be used).
+func (opts *GMSM2PublicKeyImportOpts) Algorithm() string {
+	return GMSM2
+}
+
+// Ephemeral returns true if the key generated has to be ephemeral,
+// false otherwise.
+func (opts *GMSM2PublicKeyImportOpts) Ephemeral() bool {
+	return opts.Temporary
+}
+
+
+
 // HMACImportKeyOpts contains options for importing HMAC keys.
 type HMACImportKeyOpts struct {
 	Temporary bool

@@ -1,3 +1,18 @@
+/*
+Copyright Suzhou Tongji Fintech Research Institute 2017 All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	 http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package gm
 
 import (
@@ -35,7 +50,7 @@ func SM4Encrypt(key, src []byte) ([]byte, error) {
 
 	// // Then encrypt
 	// return aesCBCEncrypt(key, tmp)
-	dst := make([]byte,len(src))
+	dst := make([]byte, len(src))
 	sm4.EncryptBlock(key, dst, src)
 	return dst, nil
 }
@@ -48,7 +63,7 @@ func SM4Decrypt(key, src []byte) ([]byte, error) {
 	// 	return pkcs7UnPadding(pt)
 	// }
 
-	dst := make([]byte,len(src))
+	dst := make([]byte, len(src))
 	sm4.DecryptBlock(key, dst, src)
 	return dst, nil
 }

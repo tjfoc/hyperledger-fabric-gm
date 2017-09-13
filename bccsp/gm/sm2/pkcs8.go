@@ -156,7 +156,7 @@ func pbkdf(password, salt []byte, iter, keyLen int, h func() hash.Hash) []byte {
 	return dk[:keyLen]
 }
 
-func parseSm2PublicKey(der []byte) (*PublicKey, error) {
+func ParseSm2PublicKey(der []byte) (*PublicKey, error) {
 	var pubkey pkixPublicKey
 	if _, err := asn1.Unmarshal(der, &pubkey); err != nil {
 		return nil, err
@@ -189,7 +189,7 @@ func marshalSm2PublicKey(key *PublicKey) ([]byte, error) {
 	return asn1.Marshal(r)
 }
 
-func parseSM2PrivateKey(der []byte) (*PrivateKey, error) {
+func ParseSM2PrivateKey(der []byte) (*PrivateKey, error) {
 	var privKey sm2PrivateKey
 	if _, err := asn1.Unmarshal(der, &privKey); err != nil {
 		return nil, errors.New("x509: failed to parse SM2 private key: " + err.Error())
@@ -217,7 +217,7 @@ func parseSM2PrivateKey(der []byte) (*PrivateKey, error) {
 	return priv, nil
 }
 
-func parsePKCS8UnecryptedPrivateKey(der []byte) (*PrivateKey, error) {
+func ParsePKCS8UnecryptedPrivateKey(der []byte) (*PrivateKey, error) {
 	var privKey pkcs8
 	if _, err := asn1.Unmarshal(der, &privKey); err != nil {
 		return nil, err
@@ -225,7 +225,7 @@ func parsePKCS8UnecryptedPrivateKey(der []byte) (*PrivateKey, error) {
 	if !reflect.DeepEqual(privKey.Algo.Algorithm, oidSM2) {
 		return nil, errors.New("x509: not sm2 elliptic curve")
 	}
-	return parseSM2PrivateKey(privKey.PrivateKey)
+	return ParseSM2PrivateKey(privKey.PrivateKey)
 }
 
 func parsePKCS8EcryptedPrivateKey(der, pwd []byte) (*PrivateKey, error) {
@@ -274,7 +274,7 @@ func parsePKCS8EcryptedPrivateKey(der, pwd []byte) (*PrivateKey, error) {
 	}
 	mode := cipher.NewCBCDecrypter(block, iv)
 	mode.CryptBlocks(encryptedKey, encryptedKey)
-	rKey, err := parsePKCS8UnecryptedPrivateKey(encryptedKey)
+	rKey, err := ParsePKCS8UnecryptedPrivateKey(encryptedKey)
 	if err != nil {
 		return nil, errors.New("pkcs8: incorrect password")
 	}
@@ -283,7 +283,7 @@ func parsePKCS8EcryptedPrivateKey(der, pwd []byte) (*PrivateKey, error) {
 
 func parsePKCS8PrivateKey(der, pwd []byte) (*PrivateKey, error) {
 	if pwd == nil {
-		return parsePKCS8UnecryptedPrivateKey(der)
+		return ParsePKCS8UnecryptedPrivateKey(der)
 	}
 	return parsePKCS8EcryptedPrivateKey(der, pwd)
 }
@@ -445,7 +445,7 @@ func ReadPublicKeyFromMem(data []byte, _ []byte) (*PublicKey, error) {
 	if block == nil || block.Type != "PUBLIC KEY" {
 		return nil, errors.New("failed to decode public key")
 	}
-	pub, err := parseSm2PublicKey(block.Bytes)
+	pub, err := ParseSm2PublicKey(block.Bytes)
 	return pub, err
 }
 
