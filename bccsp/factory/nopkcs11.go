@@ -75,6 +75,8 @@ func GetBCCSPFromOpts(config *FactoryOpts) (bccsp.BCCSP, error) {
 	switch config.ProviderName {
 	case "SW":
 		f = &SWFactory{}
+	case "GM":
+		f = &GMFactory{}
 	default:
 		return nil, fmt.Errorf("Could not find BCCSP, no '%s' provider", config.ProviderName)
 	}

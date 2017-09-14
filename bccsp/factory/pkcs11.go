@@ -90,6 +90,8 @@ func setFactories(config *FactoryOpts) error {
 func GetBCCSPFromOpts(config *FactoryOpts) (bccsp.BCCSP, error) {
 	var f BCCSPFactory
 	switch config.ProviderName {
+	case "GM":
+		f = &GMFactory{}
 	case "SW":
 		f = &SWFactory{}
 	case "PKCS11":
