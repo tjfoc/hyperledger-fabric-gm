@@ -65,6 +65,13 @@ script:
  - sed -i -e 's/172.17.0.1:2375\b/'"$ip:$port"'/g' $HOME/gopath/src/github.com/hyperledger/fabric/bddtests/compose-defaults.yml
  - sudo chmod -R 777 /usr/local/lib/python2.7/dist-packages/
  - pip install b3j0f.aop
+ - cd
+ - mkdir sha3
+ - cd sha3
+ - git clone https://github.com/bjornedstrom/python-sha3
+ - cd python-sha3
+ - python setup.py build
+ - python setup.py install
  - make behave BEHAVE_OPTS="-D logs=Y -o testsummary.log" 
  #- sudo apt-get install python-setuptools
  #- make $TEST_TARGET
