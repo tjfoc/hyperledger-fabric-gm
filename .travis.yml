@@ -74,7 +74,7 @@ script:
  - export BEHAVE_OPTS="-D logs=Y -o testsummary.log" 
  - sudo apt-get install python-setuptools
  
- - pip install grpcio-tools 
+ #- pip install grpcio-tools 
     # The pyopenssl install gives errors, but installs succeeds
  #- pip install pyopenssl
  #- pip install python-slugify
