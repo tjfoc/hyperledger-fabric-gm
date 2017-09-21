@@ -4,14 +4,5 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 [behave]
-#tags=~@orderer
-#	 ~@endorser
-tags=~@issue_724
-			~@issue_767
-			~@issueUtxo
-			~@issue_477
-			~@issue_680
-			~@issue_1207
-			~@issue_1565
-			~@issue_RBAC_TCERT_With_Attributes
-			~@sdk
+tags=~@orderer
+	 ~@endorser
