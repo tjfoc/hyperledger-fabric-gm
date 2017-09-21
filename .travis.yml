@@ -76,7 +76,8 @@ script:
  
  #- pip install grpcio-tools 
     # The pyopenssl install gives errors, but installs succeeds
- #- pip install pyopenssl
+ - pip install pyopenssl
+ - pip install ecdsa
  #- pip install python-slugify
  #- pip install pyyaml
  - cd /home/travis/gopath/src/github.com/hyperledger/fabric/bddtests
