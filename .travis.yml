@@ -63,9 +63,9 @@ script:
  - echo "Executing Tests"
  - cd $HOME/gopath/src/github.com/hyperledger/fabric
  - sed -i -e 's/172.17.0.1:2375\b/'"$ip:$port"'/g' $HOME/gopath/src/github.com/hyperledger/fabric/bddtests/compose-defaults.yml
- - make behave BEHAVE_OPTS="-D logs=Y -o testsummary.log" 
- - pip install b3j0f.aop
  - sudo chmod -R 777 /usr/local/lib/python2.7/dist-packages/
+ - pip install b3j0f.aop
+ - make behave BEHAVE_OPTS="-D logs=Y -o testsummary.log" 
  #- sudo apt-get install python-setuptools
  #- make $TEST_TARGET
 
