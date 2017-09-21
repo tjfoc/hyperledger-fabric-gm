@@ -71,9 +71,10 @@ script:
  - cd python-sha3
  - python setup.py build
  - python setup.py install
- - make behave BEHAVE_OPTS="-D logs=Y -o testsummary.log" 
- #- sudo apt-get install python-setuptools
+ - export BEHAVE_OPTS="-D logs=Y -o testsummary.log" 
+ - sudo apt-get install python-setuptools
  #- make $TEST_TARGET
+ - make behave
 
 after_failure:
 
