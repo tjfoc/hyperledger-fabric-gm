@@ -12,7 +12,7 @@ services:
 env:
    # - TEST_TARGET=unit-test
     - TEST_TARGET=behave
-    - TEST_TARGET=node-sdk-unit-tests
+   # - TEST_TARGET=node-sdk-unit-tests
 
 before_install:
 
@@ -57,6 +57,7 @@ before_script:
  - chmod -R 777 *
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/bccsp/
  - make linter
+ - make unit-test
 
 script:
 
