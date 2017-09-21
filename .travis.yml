@@ -56,7 +56,7 @@ before_script:
  #- ls $HOME/gopath/src/golang.org/x/tools
  - chmod -R 777 *
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/bccsp/
- - make linter
+ #- make linter
 
 script:
 
