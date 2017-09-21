@@ -10,7 +10,7 @@ sudo: required
 services:
  - docker
 env:
-    - TEST_TARGET=unit-test
+   # - TEST_TARGET=unit-test
     - TEST_TARGET=behave
    # - TEST_TARGET=node-sdk-unit-tests
 
@@ -57,7 +57,6 @@ before_script:
  - chmod -R 777 *
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/bccsp/
  - make linter
- #- make unit-test
 
 script:
 
