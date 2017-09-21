@@ -66,7 +66,7 @@ script:
  - export BEHAVE_OPTS="-D logs=Y -o testsummary.log" #Defined to both jobs.
  - export GOPATH=/home/travis/gopath
  - go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
- - chmod 777 $HOME/gopath/src/github.com/hyperledger/fabric
+ - chmod 777 /usr/local/lib/python2.7/dist-packages/
  - pip install b3j0f.aop
  - make $TEST_TARGET
 
