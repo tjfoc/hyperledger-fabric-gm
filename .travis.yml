@@ -11,7 +11,7 @@ services:
  - docker
 env:
    # - TEST_TARGET=unit-test
-   # - TEST_TARGET=behave
+   - TEST_TARGET=behave
    # - TEST_TARGET=node-sdk-unit-tests
 
 before_install:
@@ -73,8 +73,8 @@ script:
  - python setup.py install
  - export BEHAVE_OPTS="-D logs=Y -o testsummary.log" 
  - sudo apt-get install python-setuptools
- #- make $TEST_TARGET
- - make behave
+ - make $TEST_TARGET
+ #- make behave
 
 after_failure:
 
