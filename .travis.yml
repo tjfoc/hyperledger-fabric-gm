@@ -74,12 +74,15 @@ script:
  - export BEHAVE_OPTS="-D logs=Y -o testsummary.log" 
  - sudo apt-get install python-setuptools
  
- #- pip install grpcio-tools 
+ - pip install grpcio-tools 
+ - pip install "pysha3==1.0b1"
+ #- pip install b3j0f.aop
+ - pip install jinja2
     # The pyopenssl install gives errors, but installs succeeds
  - pip install pyopenssl
  - pip install ecdsa
- #- pip install python-slugify
- #- pip install pyyaml
+ - pip install python-slugify
+ - pip install pyyaml
  - cd /home/travis/gopath/src/github.com/hyperledger/fabric/bddtests
  - behave -k -D cache-deployment-spec
  - behave -k -D cache-deployment-spec features/bootstrap.feature
