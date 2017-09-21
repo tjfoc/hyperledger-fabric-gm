@@ -65,7 +65,7 @@ script:
  # - sed -i -e 's/172.17.0.1:2375\b/'"$ip:$port"'/g' $HOME/gopath/src/github.com/hyperledger/fabric/bddtests/compose-defaults.yml
  - export BEHAVE_OPTS="-D logs=Y -o testsummary.log" #Defined to both jobs.
  - export GOPATH=/home/travis/gopath
- #- go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+ - go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
  - make $TEST_TARGET
 
 after_failure:
