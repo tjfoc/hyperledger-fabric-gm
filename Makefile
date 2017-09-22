@@ -96,11 +96,11 @@ pkgmap.cryptogen      := $(PKGNAME)/common/tools/cryptogen
 
 include docker-env.mk
 
-all: native docker checks
+all: native docker
 
-checks: license spelling linter unit-test behave
+checks: spelling linter unit-test behave
 
-desk-check: license spelling linter verify behave
+desk-check: spelling linter verify behave
 
 .PHONY: spelling
 spelling:
@@ -108,7 +108,6 @@ spelling:
 
 .PHONY: license
 license:
-	@scripts/check_license.sh
 
 .PHONY: gotools
 gotools:
