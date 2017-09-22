@@ -18,11 +18,11 @@ package gm
 import (
 	"crypto/elliptic"
 	"crypto/sha256"
-	"crypto/x509"
 	"errors"
 	"fmt"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+
 	"github.com/hyperledger/fabric/bccsp"
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 )
 
 type gmsm2PrivateKey struct {
@@ -75,7 +75,7 @@ type gmsm2PublicKey struct {
 // Bytes converts this key to its byte representation,
 // if this operation is allowed.
 func (k *gmsm2PublicKey) Bytes() (raw []byte, err error) {
-	raw, err = x509.MarshalPKIXPublicKey(k.pubKey)
+	raw, err = sm2.MarshalSm2PublicKey(k.pubKey)
 	if err != nil {
 		return nil, fmt.Errorf("Failed marshalling key [%s]", err)
 	}

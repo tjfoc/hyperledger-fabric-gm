@@ -25,6 +25,7 @@ import (
 
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/ca"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/csp"
 )
@@ -59,13 +60,15 @@ func GenerateLocalMSP(baseDir, name string, sans []string, signCA *ca.CA,
 	}
 
 	// get public key
-	ecPubKey, err := csp.GetECPublicKey(priv)
+	// ecPubKey, err := csp.GetECPublicKey(priv)
+	sm2PubKey, err := csp.GetSM2PublicKey(priv)
+
 	if err != nil {
 		return err
 	}
 	// generate X509 certificate using signing CA
 	cert, err := signCA.SignCertificate(filepath.Join(mspDir, "signcerts"),
-		name, []string{}, ecPubKey, x509.KeyUsageDigitalSignature, []x509.ExtKeyUsage{})
+		name, []string{}, sm2PubKey, x509.KeyUsageDigitalSignature, []x509.ExtKeyUsage{})
 	if err != nil {
 		return err
 	}
@@ -73,12 +76,12 @@ func GenerateLocalMSP(baseDir, name string, sans []string, signCA *ca.CA,
 	// write artifacts to MSP folders
 
 	// the signing CA certificate goes into cacerts
-	err = x509Export(filepath.Join(mspDir, "cacerts", x509Filename(signCA.Name)), signCA.SignCert)
+	err = x509Export(filepath.Join(mspDir, "cacerts", x509Filename(signCA.Name)), signCA.SignSm2Cert)
 	if err != nil {
 		return err
 	}
 	// the TLS CA certificate goes into tlscacerts
-	err = x509Export(filepath.Join(mspDir, "tlscacerts", x509Filename(tlsCA.Name)), tlsCA.SignCert)
+	err = x509Export(filepath.Join(mspDir, "tlscacerts", x509Filename(tlsCA.Name)), tlsCA.SignSm2Cert)
 	if err != nil {
 		return err
 	}
@@ -105,7 +108,8 @@ func GenerateLocalMSP(baseDir, name string, sans []string, signCA *ca.CA,
 		return err
 	}
 	// get public key
-	tlsPubKey, err := csp.GetECPublicKey(tlsPrivKey)
+	//tlsPubKey, err := csp.GetECPublicKey(tlsPrivKey)
+	tlsPubKey, err := csp.GetSM2PublicKey(tlsPrivKey)
 	if err != nil {
 		return err
 	}
@@ -116,7 +120,7 @@ func GenerateLocalMSP(baseDir, name string, sans []string, signCA *ca.CA,
 	if err != nil {
 		return err
 	}
-	err = x509Export(filepath.Join(tlsDir, "ca.crt"), tlsCA.SignCert)
+	err = x509Export(filepath.Join(tlsDir, "ca.crt"), tlsCA.SignSm2Cert)
 	if err != nil {
 		return err
 	}
@@ -142,12 +146,12 @@ func GenerateVerifyingMSP(baseDir string, signCA *ca.CA, tlsCA *ca.CA) error {
 	err := createFolderStructure(baseDir, false)
 	if err == nil {
 		// the signing CA certificate goes into cacerts
-		err = x509Export(filepath.Join(baseDir, "cacerts", x509Filename(signCA.Name)), signCA.SignCert)
+		err = x509Export(filepath.Join(baseDir, "cacerts", x509Filename(signCA.Name)), signCA.SignSm2Cert)
 		if err != nil {
 			return err
 		}
 		// the TLS CA certificate goes into tlscacerts
-		err = x509Export(filepath.Join(baseDir, "tlscacerts", x509Filename(tlsCA.Name)), tlsCA.SignCert)
+		err = x509Export(filepath.Join(baseDir, "tlscacerts", x509Filename(tlsCA.Name)), tlsCA.SignSm2Cert)
 		if err != nil {
 			return err
 		}
@@ -161,12 +165,13 @@ func GenerateVerifyingMSP(baseDir string, signCA *ca.CA, tlsCA *ca.CA) error {
 	factory.InitFactories(nil)
 	bcsp := factory.GetDefault()
 	priv, err := bcsp.KeyGen(&bccsp.ECDSAP256KeyGenOpts{Temporary: true})
-	ecPubKey, err := csp.GetECPublicKey(priv)
+	//ecPubKey, err := csp.GetECPublicKey(priv)
+	sm2PubKey, err := csp.GetSM2PublicKey(priv)
 	if err != nil {
 		return err
 	}
 	_, err = signCA.SignCertificate(filepath.Join(baseDir, "admincerts"), signCA.Name,
-		[]string{""}, ecPubKey, x509.KeyUsageDigitalSignature, []x509.ExtKeyUsage{})
+		[]string{""}, sm2PubKey, x509.KeyUsageDigitalSignature, []x509.ExtKeyUsage{})
 	if err != nil {
 		return err
 	}
@@ -202,7 +207,7 @@ func x509Filename(name string) string {
 	return name + "-cert.pem"
 }
 
-func x509Export(path string, cert *x509.Certificate) error {
+func x509Export(path string, cert *sm2.Certificate) error {
 	return pemExport(path, "CERTIFICATE", cert.Raw)
 }
 

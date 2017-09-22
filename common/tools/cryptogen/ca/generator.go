@@ -26,16 +26,23 @@ import (
 	"os"
 	"time"
 
+	"github.com/hyperledger/fabric/bccsp"
+	"github.com/hyperledger/fabric/bccsp/gm"
+
+	"io/ioutil"
 	"path/filepath"
 
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/csp"
 )
 
 type CA struct {
 	Name string
 	//SignKey  *ecdsa.PrivateKey
-	Signer   crypto.Signer
-	SignCert *x509.Certificate
+	Signer      crypto.Signer
+	SignCert    *x509.Certificate
+	SignSm2Cert *sm2.Certificate
+	Sm2Key      bccsp.Key
 }
 
 // NewCA creates an instance of CA and saves the signing key pair in
@@ -47,11 +54,13 @@ func NewCA(baseDir, org, name string) (*CA, error) {
 
 	err := os.MkdirAll(baseDir, 0755)
 	if err == nil {
-		priv, signer, err := csp.GeneratePrivateKey(baseDir)
+		//priv, signer, err := csp.GeneratePrivateKey(baseDir)
+		priv, _, err := csp.GeneratePrivateKey(baseDir)
 		response = err
 		if err == nil {
 			// get public signing certificate
-			ecPubKey, err := csp.GetECPublicKey(priv)
+			//ecPubKey, err := csp.GetECPublicKey(priv)
+			sm2PubKey, err := csp.GetSM2PublicKey(priv)
 			response = err
 			if err == nil {
 				template := x509Template()
@@ -70,14 +79,21 @@ func NewCA(baseDir, org, name string) (*CA, error) {
 				template.Subject = subject
 				template.SubjectKeyId = priv.SKI()
 
-				x509Cert, err := genCertificateECDSA(baseDir, name, &template, &template,
-					ecPubKey, signer)
+				// x509Cert, err := genCertificateECDSA(baseDir, name, &template, &template,
+				// 	ecPubKey, signer)
+				sm2cert := gm.ParseX509Certificate2Sm2(&template)
+
+				sm2cert.PublicKey = sm2PubKey
+
+				x509Cert, err := genCertificateGMSM2(baseDir, name, sm2cert, sm2cert, sm2PubKey, priv)
 				response = err
 				if err == nil {
 					ca = &CA{
-						Name:     name,
-						Signer:   signer,
-						SignCert: x509Cert,
+						Name: name,
+						//Signer: signer,
+						//SignCert: x509Cert,
+						SignSm2Cert: x509Cert,
+						Sm2Key:      priv,
 					}
 				}
 			}
@@ -88,8 +104,8 @@ func NewCA(baseDir, org, name string) (*CA, error) {
 
 // SignCertificate creates a signed certificate based on a built-in template
 // and saves it in baseDir/name
-func (ca *CA) SignCertificate(baseDir, name string, sans []string, pub *ecdsa.PublicKey,
-	ku x509.KeyUsage, eku []x509.ExtKeyUsage) (*x509.Certificate, error) {
+func (ca *CA) SignCertificate(baseDir, name string, sans []string, pub *sm2.PublicKey,
+	ku x509.KeyUsage, eku []x509.ExtKeyUsage) (*sm2.Certificate, error) {
 
 	template := x509Template()
 	template.KeyUsage = ku
@@ -102,8 +118,14 @@ func (ca *CA) SignCertificate(baseDir, name string, sans []string, pub *ecdsa.Pu
 	template.Subject = subject
 	template.DNSNames = sans
 
-	cert, err := genCertificateECDSA(baseDir, name, &template, ca.SignCert,
-		pub, ca.Signer)
+	// cert, err := genCertificateECDSA(baseDir, name, &template, ca.SignCert,
+	// 	pub, ca.Signer)
+
+	sm2Tpl := gm.ParseX509Certificate2Sm2(&template)
+	if sm2Tpl.PublicKey == nil {
+		sm2Tpl.PublicKey = pub
+	}
+	cert, err := genCertificateGMSM2(baseDir, name, sm2Tpl, ca.SignSm2Cert, pub, ca.Sm2Key)
 
 	if err != nil {
 		return nil, err
@@ -168,4 +190,41 @@ func genCertificateECDSA(baseDir, name string, template, parent *x509.Certificat
 		return nil, err
 	}
 	return x509Cert, nil
+}
+
+//generate a signed X509 certficate using GMSM2
+func genCertificateGMSM2(baseDir, name string, template, parent *sm2.Certificate, pub *sm2.PublicKey,
+	key bccsp.Key) (*sm2.Certificate, error) {
+
+	//create the x509 public cert
+	certBytes, err := gm.CreateCertificateToMem(template, parent, key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	//write cert out to file
+	fileName := filepath.Join(baseDir, name+"-cert.pem")
+	err = ioutil.WriteFile(fileName, certBytes, os.FileMode(0666))
+
+	// certFile, err := os.Create(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	// //pem encode the cert
+	// err = pem.Encode(certFile, &pem.Block{Type: "CERTIFICATE", Bytes: certBytes})
+	// certFile.Close()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// fmt.Println("xxx end Encode")
+	//x509Cert, err := sm2.ReadCertificateFromPem(fileName)
+
+	x509Cert, err := sm2.ReadCertificateFromMem(certBytes)
+	if err != nil {
+		return nil, err
+	}
+	return x509Cert, nil
+
 }
