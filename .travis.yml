@@ -57,7 +57,8 @@ before_script:
  - chmod -R 777 *
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/bccsp/
  - make linter
-
+ - cd $GOPATH/src/github.com/hyperledger/fabric
+ - make dist-clean all
 script:
 
  - echo "Executing Tests"
