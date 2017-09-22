@@ -108,7 +108,6 @@ spelling:
 
 .PHONY: license
 license:
-	@scripts/check_license.sh
 
 .PHONY: gotools
 gotools:
