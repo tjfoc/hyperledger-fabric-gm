@@ -164,7 +164,8 @@ func GenerateVerifyingMSP(baseDir string, signCA *ca.CA, tlsCA *ca.CA) error {
 	// of unit tests
 	factory.InitFactories(nil)
 	bcsp := factory.GetDefault()
-	priv, err := bcsp.KeyGen(&bccsp.ECDSAP256KeyGenOpts{Temporary: true})
+	//priv, err := bcsp.KeyGen(&bccsp.ECDSAP256KeyGenOpts{Temporary: true})
+	priv, err := bcsp.KeyGen(&bccsp.GMSM2KeyGenOpts{Temporary: true})
 	//ecPubKey, err := csp.GetECPublicKey(priv)
 	sm2PubKey, err := csp.GetSM2PublicKey(priv)
 	if err != nil {

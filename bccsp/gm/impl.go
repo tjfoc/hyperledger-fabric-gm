@@ -23,6 +23,9 @@ import (
 	"github.com/hyperledger/fabric/bccsp/gm/sm3"
 	"github.com/hyperledger/fabric/common/errors"
 	"github.com/hyperledger/fabric/common/flogging"
+	"crypto/sha256"
+	"crypto/sha512"
+	"golang.org/x/crypto/sha3"
 )
 
 var (
@@ -63,7 +66,12 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 
 	// Set the hashers
 	hashers := make(map[reflect.Type]Hasher)
+	hashers[reflect.TypeOf(&bccsp.SHAOpts{})] = &hasher{hash: conf.hashFunction}
 	hashers[reflect.TypeOf(&bccsp.GMSM3Opts{})] = &hasher{hash: sm3.New} //sm3 Hash选项
+	hashers[reflect.TypeOf(&bccsp.SHA256Opts{})] = &hasher{hash: sha256.New}
+	hashers[reflect.TypeOf(&bccsp.SHA384Opts{})] = &hasher{hash: sha512.New384}
+	hashers[reflect.TypeOf(&bccsp.SHA3_256Opts{})] = &hasher{hash: sha3.New256}
+	hashers[reflect.TypeOf(&bccsp.SHA3_384Opts{})] = &hasher{hash: sha3.New384}
 
 	impl := &impl{
 		conf:       conf,
@@ -89,6 +97,8 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	keyImporters[reflect.TypeOf(&bccsp.GMSM4ImportKeyOpts{})] = &gmsm4ImportKeyOptsKeyImporter{}
 	keyImporters[reflect.TypeOf(&bccsp.GMSM2PrivateKeyImportOpts{})] = &gmsm2PrivateKeyImportOptsKeyImporter{}
 	keyImporters[reflect.TypeOf(&bccsp.GMSM2PublicKeyImportOpts{})] = &gmsm2PublicKeyImportOptsKeyImporter{}
+	keyImporters[reflect.TypeOf(&bccsp.X509PublicKeyImportOpts{})] = &x509PublicKeyImportOptsKeyImporter{bccsp: impl}
+	
 	impl.keyImporters = keyImporters
 
 	return impl, nil

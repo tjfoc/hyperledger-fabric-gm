@@ -88,6 +88,7 @@ type bootstrapper struct {
 
 // New returns a new provisional bootstrap helper.
 func New(conf *genesisconfig.Profile) Generator {
+	logger.Info("xxx x in New")
 	bs := &bootstrapper{
 		channelGroups: []*cb.ConfigGroup{
 			// Chain Config Types
@@ -101,6 +102,7 @@ func New(conf *genesisconfig.Profile) Generator {
 		},
 	}
 
+	logger.Info("xxx begin call config.Orderer")
 	if conf.Orderer != nil {
 		// Orderer addresses
 		oa := config.TemplateOrdererAddresses(conf.Orderer.Addresses)
@@ -126,6 +128,7 @@ func New(conf *genesisconfig.Profile) Generator {
 			policies.TemplateImplicitMetaMajorityPolicy([]string{config.OrdererGroupKey}, configvaluesmsp.AdminsPolicyKey),
 		}
 
+		logger.Info("xxx begin range config.Orderer.Organizations")
 		for _, org := range conf.Orderer.Organizations {
 			mspConfig, err := msp.GetVerifyingMspConfig(org.MSPDir, org.ID)
 			if err != nil {
@@ -138,6 +141,7 @@ func New(conf *genesisconfig.Profile) Generator {
 			)
 		}
 
+		logger.Infof("xxx begin  switch conf.Orderer.OrdererType",conf.Orderer.OrdererType)
 		switch conf.Orderer.OrdererType {
 		case ConsensusTypeSolo:
 		case ConsensusTypeKafka:
@@ -147,6 +151,7 @@ func New(conf *genesisconfig.Profile) Generator {
 		}
 	}
 
+	logger.Infof("xxx begin  conf.Application:%+v",conf.Application)
 	if conf.Application != nil {
 
 		bs.applicationGroups = []*cb.ConfigGroup{

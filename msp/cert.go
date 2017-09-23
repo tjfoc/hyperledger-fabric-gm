@@ -24,10 +24,13 @@ import (
 	"encoding/asn1"
 	"math/big"
 	"time"
-
 	"errors"
+	"fmt"
 
 	"github.com/hyperledger/fabric/bccsp/sw"
+	"github.com/hyperledger/fabric/bccsp/gm"
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	
 )
 
 type dsaSignature struct {
@@ -74,6 +77,14 @@ func isECDSASignedCert(cert *x509.Certificate) bool {
 		cert.SignatureAlgorithm == x509.ECDSAWithSHA512
 }
 
+func isSM2SignedCert(cert *x509.Certificate) bool {
+	sm2cert := gm.ParseX509Certificate2Sm2(cert)
+	return sm2cert.SignatureAlgorithm == sm2.SM2WithSHA1 ||
+		sm2cert.SignatureAlgorithm == sm2.SM2WithSHA256 ||
+		sm2cert.SignatureAlgorithm == sm2.SM2WithSHA384 ||
+		sm2cert.SignatureAlgorithm == sm2.SM2WithSHA512
+}
+
 // sanitizeECDSASignedCert checks that the signatures signing a cert
 // is in low-S. This is checked against the public key of parentCert.
 // If the signature is not in low-S, then a new certificate is generated
@@ -118,4 +129,59 @@ func sanitizeECDSASignedCert(cert *x509.Certificate, parentCert *x509.Certificat
 
 	// 4. parse newRaw to get an x509 certificate
 	return x509.ParseCertificate(newRaw)
+}
+
+
+func sanitizeSM2SignedCert(cert *x509.Certificate, parentCert *x509.Certificate) (*x509.Certificate, error) {
+	fmt.Println("xxxx in msp.cert.go sanitizeSM2SignedCert")
+	if cert == nil {
+		return nil, errors.New("Certificate must be different from nil.")
+	}
+	if parentCert == nil {
+		return nil, errors.New("Parent certificate must be different from nil.")
+	}
+	fmt.Println("xxxx in msp.cert.go begin gm.SignatureToLowS xxx")
+	sm2puk := parentCert.PublicKey.(sm2.PublicKey)
+	expectedSig, err := gm.SignatureToLowS(&sm2puk, cert.Signature)
+	fmt.Printf("xxxx end in msp.cert.go gm.SignatureToLowS [%s]\n",err)
+	if err != nil {
+		return nil, err
+	}
+
+	// if sig == cert.Signature, nothing needs to be done
+	if bytes.Equal(cert.Signature, expectedSig) {
+		return cert, nil
+	}
+	// otherwise create a new certificate with the new signature
+
+	// 1. Unmarshal cert.Raw to get an instance of certificate,
+	//    the lower level interface that represent an x509 certificate
+	//    encoding
+	fmt.Println("xxxx 1.Unmarshal cert")
+	var newCert certificate
+	_, err = asn1.Unmarshal(cert.Raw, &newCert)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("xxxx 2.Change the signature")
+	// 2. Change the signature
+	newCert.SignatureValue = asn1.BitString{Bytes: expectedSig, BitLength: len(expectedSig) * 8}
+
+	// 3. marshal again newCert. Raw must be nil
+	fmt.Println("xxxx 3. marshal again newCert. Raw must be nil")
+	newCert.Raw = nil
+	newRaw, err := asn1.Marshal(newCert)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("xxxx 4. return x509.ParseCertificate")
+	// 4. parse newRaw to get an x509 certificate
+	var x509cert *x509.Certificate
+	sm2cert ,err := sm2.ParseCertificate(newRaw)
+	if err != nil {
+		x509cert = gm.ParseSm2Certificate2X509(sm2cert)
+	}
+	return x509cert , err
 }

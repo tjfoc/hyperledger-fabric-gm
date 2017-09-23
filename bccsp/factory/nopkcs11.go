@@ -19,6 +19,7 @@ package factory
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hyperledger/fabric/bccsp"
 )
@@ -52,7 +53,12 @@ func InitFactories(config *FactoryOpts) error {
 
 		// Software-Based BCCSP
 		if config.SwOpts != nil {
-			f := &SWFactory{}
+			var f BCCSPFactory
+			if strings.ToUpper(config.ProviderName) == "GM" {
+				f = &GMFactory{}
+			}else{
+				f = &SWFactory{}
+			}
 			err := initBCCSP(f, config)
 			if err != nil {
 				factoriesInitError = fmt.Errorf("[%s]", err)

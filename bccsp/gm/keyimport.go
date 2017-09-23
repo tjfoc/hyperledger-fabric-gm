@@ -16,8 +16,10 @@ limitations under the License.
 package gm
 
 import (
+	"reflect"
 	"errors"
 	"fmt"
+	"crypto/x509"
 
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/gm/sm2"
@@ -103,4 +105,68 @@ func (*gmsm2PublicKeyImportOptsKeyImporter) KeyImport(raw interface{}, opts bccs
 
 
 	return &gmsm2PublicKey{gmsm2SK}, nil
+}
+
+
+type x509PublicKeyImportOptsKeyImporter struct {
+	bccsp *impl
+}
+
+func (ki *x509PublicKeyImportOptsKeyImporter) KeyImport(raw interface{}, opts bccsp.KeyImportOpts) (k bccsp.Key, err error) {
+	
+	x509Cert, ok := raw.(*x509.Certificate)
+	if !ok {
+		return nil, errors.New("Invalid raw material. Expected *x509.Certificate.")
+	}
+
+	//sm2Cert := ParseX509Certificate2Sm2(x509Cert)
+	//pk := sm2Cert.PublicKey
+	//公钥的der
+
+	pk := x509Cert.PublicKey
+
+
+	switch pk.(type) {
+	case sm2.PublicKey:
+		fmt.Println("xxxxxxxxxxxxxxxxxxxxx keyimport.go sm2 pk")
+
+		sm2PublickKey, ok := pk.(sm2.PublicKey)
+		if !ok {
+			fmt.Println("xxx parse interface []  to sm2 pk error")
+		}
+		der,err := sm2.MarshalSm2PublicKey(&sm2PublickKey)
+		if err != nil{
+			fmt.Println("xxxx  MarshalSm2PublicKey error")
+		}
+
+		return ki.bccsp.keyImporters[reflect.TypeOf(&bccsp.GMSM2PublicKeyImportOpts{})].KeyImport(
+			der,
+			&bccsp.GMSM2PublicKeyImportOpts{Temporary:opts.Ephemeral()})
+
+	default:
+		fmt.Println("xxxxxxxxxxxxxxxxxxx default k")
+		return nil, errors.New("Certificate's public key type not recognized. Supported keys: [GMSM2]")
+	}
+
+	// return ki.bccsp.keyImporters[reflect.TypeOf(&bccsp.GMSM2PublicKeyImportOpts{})].KeyImport(
+	// 	pk,
+	// 	&bccsp.GMSM2PublicKeyImportOpts{Temporary:opts.Ephemeral()})
+
+	// switch pk.(type) {
+	// case *sm2.PublicKey:
+
+	// 	ki.bccsp.keyImporters[reflect.TypeOf(&bccsp.GMSM2PublicKeyImportOpts{})].KeyImport(
+	// 		pk,
+	// 		&bccsp.GMSM2PublicKeyImportOpts{Temporary:opts.Ephemeral()})
+
+	// 	// return ki.bccsp.keyImporters[reflect.TypeOf(&bccsp.GMSM2PublicKeyImportOpts{})].KeyImport(
+	// 	// 	pk,
+	// 	// 	&bccsp.GMSM2PublicKeyImportOpts{Temporary: opts.Ephemeral()})
+	// // case *rsa.PublicKey:
+	// // 	return ki.bccsp.keyImporters[reflect.TypeOf(&bccsp.RSAGoPublicKeyImportOpts{})].KeyImport(
+	// // 		pk,
+	// // 		&bccsp.RSAGoPublicKeyImportOpts{Temporary: opts.Ephemeral()})
+	// default:
+	// 	return nil, errors.New("Certificate's public key type not recognized. Supported keys: [ECDSA, RSA]")
+	// }
 }
