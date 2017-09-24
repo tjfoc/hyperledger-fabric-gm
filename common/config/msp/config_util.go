@@ -107,7 +107,7 @@ func TemplateGroupMSPWithAdminRolePrincipal(configPath []string, mspConfig *mspp
 	intermediate.Policies[ReadersPolicyKey] = memberPolicy
 	intermediate.Policies[WritersPolicyKey] = memberPolicy
 
-	logger.Infof("xxxx config_util.go return result:[%+v]",result)
+	logger.Infof("xxxx config_util.go return result:[%v]",result)
 	return result
 }
 

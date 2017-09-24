@@ -52,11 +52,10 @@ func newIdentity(id *IdentityIdentifier, cert *x509.Certificate, pk bccsp.Key, m
 	mylogger.Info("entry newIdentity")
 	mspIdentityLogger.Debugf("Creating identity instance for ID %s", id)
 
-	// Sanitize first the certificate
+	//审查  Sanitize first the certificate 
 	mylogger.Info("begin sanitizeCert()")
 	cert, err := msp.sanitizeCert(cert)
-	mylogger.Infof("end sanitizeCert()")
-	mylogger.Infof("cert=%v",cert)
+	mylogger.Infof("end sanitizeCert() cert is nil ? %t",cert == nil)
 	if err != nil {
 		mylogger.Errorf("sanitizeCert error:%s",err)
 		return nil, err

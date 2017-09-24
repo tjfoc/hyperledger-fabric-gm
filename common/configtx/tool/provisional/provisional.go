@@ -128,7 +128,7 @@ func New(conf *genesisconfig.Profile) Generator {
 			policies.TemplateImplicitMetaMajorityPolicy([]string{config.OrdererGroupKey}, configvaluesmsp.AdminsPolicyKey),
 		}
 
-		logger.Info("xxx begin range config.Orderer.Organizations")
+		logger.Infof("xxx begin range config.Orderer.Organizations,len:%d",len(conf.Orderer.Organizations))
 		for _, org := range conf.Orderer.Organizations {
 			mspConfig, err := msp.GetVerifyingMspConfig(org.MSPDir, org.ID)
 			if err != nil {

@@ -171,11 +171,13 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 	tlscacertDir := filepath.Join(dir, tlscacerts)
 	tlsintermediatecertsDir := filepath.Join(dir, tlsintermediatecerts)
 
+	mylogger.Infof("get cacert (rootcerts) config from  /////////  %s   ///////",cacertDir)
 	cacerts, err := getPemMaterialFromDir(cacertDir)
 	if err != nil || len(cacerts) == 0 {
 		return nil, fmt.Errorf("Could not load a valid ca certificate from directory %s, err %s", cacertDir, err)
 	}
 
+	mylogger.Infof("get admincert config from  /////////  %s   ///////",admincertDir)
 	admincert, err := getPemMaterialFromDir(admincertDir)
 	if err != nil || len(admincert) == 0 {
 		return nil, fmt.Errorf("Could not load a valid admin certificate from directory %s, err %s", admincertDir, err)

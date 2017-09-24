@@ -31,7 +31,6 @@ import (
 	"encoding/asn1"
 	"encoding/pem"
 	"errors"
-	"fmt"
 	"hash"
 	"io"
 	"io/ioutil"
@@ -1031,18 +1030,13 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte,
 	default:
 		return ErrUnsupportedAlgorithm
 	}
-	fmt.Printf("algo = %v\nhashtype = %v\n", algo, hashType)
 	if !hashType.Available() {
 		return ErrUnsupportedAlgorithm
 	}
 
-	fmt.Printf("signed = %v\nsignature = %v\n", signed, signature)
-
 	h := hashType.New()
 	h.Write(signed)
 	digest := h.Sum(nil)
-
-	fmt.Printf("digest = %v\n", digest)
 
 	sm2Sig := new(sm2CertSignature)
 	rest, err := asn1.Unmarshal(signature, sm2Sig)
@@ -1059,7 +1053,6 @@ func checkSignature(algo SignatureAlgorithm, signed, signature []byte,
 	if ok == false {
 		return errors.New("x509: only support sm2")
 	}
-	fmt.Printf("pubkey = %v\nR = %v\nS = %v\ndigest = %v\n", pubKey, sm2Sig.R, sm2Sig.S, digest)
 	if !Verify(&pubKey, digest, sm2Sig.R, sm2Sig.S) {
 		return errors.New("x509: SM2 verification failure")
 	}
@@ -1250,6 +1243,9 @@ func subjectBytes(cert *Certificate) ([]byte, error) {
 }
 
 func parseCertificateByStruct(in *certificate) (*Certificate, error) {
+	if !reflect.DeepEqual(in.TBSCertificate.PublicKey.Algorithm.Parameters.FullBytes, []byte{6, 8, 42, 129, 28, 207, 85, 1, 130, 45}) {
+		return nil, errors.New("Certificate: only support SM2")
+	}
 	out := new(Certificate)
 	out.Raw = in.Raw
 	out.RawTBSCertificate = in.TBSCertificate.Raw
@@ -1262,7 +1258,7 @@ func parseCertificateByStruct(in *certificate) (*Certificate, error) {
 	out.PublicKeyAlgorithm =
 		getPublicKeyAlgorithmFromOID(in.TBSCertificate.PublicKey.Algorithm.Algorithm)
 	if out.PublicKeyAlgorithm != 3 {
-		return nil, errors.New("CertificateRequest: only support SM2")
+		return nil, errors.New("Certificate: only support SM2")
 	}
 	curve := P256Sm2()
 	x, y := elliptic.Unmarshal(curve, in.TBSCertificate.PublicKey.PublicKey.RightAlign())
@@ -1615,16 +1611,6 @@ func CreateCertificate(rand io.Reader, template, parent *Certificate,
 	h := hashFunc.New()
 	h.Write(tbsCertContents)
 	digest := h.Sum(nil)
-	/*
-		var signerOpts crypto.SignerOpts
-		signerOpts = hashFunc
-		if template.SignatureAlgorithm != 0 && template.SignatureAlgorithm.isRSAPSS() {
-			signerOpts = &rsa.PSSOptions{
-				SaltLength: rsa.PSSSaltLengthEqualsHash,
-				Hash:       hashFunc,
-			}
-		}
-	*/
 	var signature []byte
 	signature, err = privKey.Sign(digest)
 	if err != nil {
@@ -1666,6 +1652,9 @@ func parseCertificateRequestByStruct(in *certificateRequest) (*CertificateReques
 	if out.PublicKeyAlgorithm != 3 {
 		return nil, errors.New("CertificateRequest: only support SM2")
 	}
+	if !reflect.DeepEqual(in.TBSCSR.PublicKey.Algorithm.Parameters.FullBytes, []byte{6, 8, 42, 129, 28, 207, 85, 1, 130, 45}) {
+		return nil, errors.New("CertificateRequest: only support SM2")
+	}
 	curve := P256Sm2()
 	x, y := elliptic.Unmarshal(curve, in.TBSCSR.PublicKey.PublicKey.RightAlign())
 	out.PublicKey = PublicKey{
@@ -1673,7 +1662,6 @@ func parseCertificateRequestByStruct(in *certificateRequest) (*CertificateReques
 		X:     x,
 		Y:     y,
 	}
-	fmt.Printf("x = %v, y = %v\n", x, y)
 	var subject pkix.RDNSequence
 	rest, err := asn1.Unmarshal(in.TBSCSR.Subject.FullBytes, &subject)
 	if err != nil {

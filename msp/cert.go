@@ -148,41 +148,43 @@ func sanitizeSM2SignedCert(cert *x509.Certificate, parentCert *x509.Certificate)
 
 	// if sig == cert.Signature, nothing needs to be done
 	if bytes.Equal(cert.Signature, expectedSig) {
+		mylogger.Info("gm.SignatureToLowS equal , sig == cert.Signature, nothing needs to be done ")
 		return cert, nil
 	}
+	return cert, nil
 	// otherwise create a new certificate with the new signature
 
 	// 1. Unmarshal cert.Raw to get an instance of certificate,
 	//    the lower level interface that represent an x509 certificate
 	//    encoding
-	mylogger.Info("xxxx 1.Unmarshal cert")
+	// mylogger.Info("xxxx 1.Unmarshal cert")
 
-	var newCert certificate
-	_, err = asn1.Unmarshal(cert.Raw, &newCert)
-	if err != nil {
-		return nil, err
-	}
+	// var newCert certificate
+	// _, err = asn1.Unmarshal(cert.Raw, &newCert)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	mylogger.Info("xxxx 2.Change the signature")
-	// 2. Change the signature
-	newCert.SignatureValue = asn1.BitString{Bytes: expectedSig, BitLength: len(expectedSig) * 8}
+	// mylogger.Info("xxxx 2.Change the signature")
+	// // 2. Change the signature
+	// newCert.SignatureValue = asn1.BitString{Bytes: expectedSig, BitLength: len(expectedSig) * 8}
 
-	// 3. marshal again newCert. Raw must be nil
-	mylogger.Info("xxxx 3. marshal again newCert. Raw must be nil")
-	newCert.Raw = nil
-	newRaw, err := asn1.Marshal(newCert)
-	if err != nil {
-		return nil, err
-	}
+	// // 3. marshal again newCert. Raw must be nil
+	// mylogger.Info("xxxx 3. marshal again newCert. Raw must be nil")
+	// newCert.Raw = nil
+	// newRaw, err := asn1.Marshal(newCert)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	mylogger.Info("xxxx 4. return x509.ParseCertificate")
-	// 4. parse newRaw to get an x509 certificate
-	var x509cert *x509.Certificate
-	sm2cert ,err := sm2.ParseCertificate(newRaw)
-	mylogger.Info("sm2.ParseCertificate(newRaw) retreun  cert=%v",sm2cert)
-	if err != nil {
-		x509cert = gm.ParseSm2Certificate2X509(sm2cert)
-	}
-	mylogger.Infof("exit sanitizeSM2SignedCert ParseSm2Certificate2X509 return x509cert=%v",x509cert)
-	return x509cert , err
+	// mylogger.Info("xxxx 4. return x509.ParseCertificate")
+	// // 4. parse newRaw to get an x509 certificate
+	// var x509cert *x509.Certificate
+	// sm2cert ,err := sm2.ParseCertificate(newRaw)
+	// mylogger.Info("sm2.ParseCertificate(newRaw) retreun  cert=%v",sm2cert)
+	// if err != nil {
+	// 	x509cert = gm.ParseSm2Certificate2X509(sm2cert)
+	// }
+	// mylogger.Infof("exit sanitizeSM2SignedCert ParseSm2Certificate2X509 return x509cert is nil ? %T",x509cert==nil)
+	// return x509cert , err
 }
