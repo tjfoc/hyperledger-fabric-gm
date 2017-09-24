@@ -30,7 +30,7 @@ import (
 	"github.com/hyperledger/fabric/common/flogging"
 )
 
-var logger = flogging.MustGetLogger("msp/mspimpl")
+var mylogger = flogging.MustGetLogger("msp/xx test xx")
 
 // This is an instantiation of an MSP that
 // uses BCCSP for its cryptographic primitives.
@@ -117,42 +117,40 @@ func (msp *bccspmsp) getCertFromPem(idBytes []byte) (*x509.Certificate, error) {
 }
 
 func (msp *bccspmsp) getIdentityFromConf(idBytes []byte) (Identity, bccsp.Key, error) {
+	mylogger.Info("entry getIdentityFromConf")
 	// get a cert
 	cert, err := msp.getCertFromPem(idBytes)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	fmt.Println("xxx mspimpl.go begin msp.bccsp.KeyImport")
+	mylogger.Info("msp.bccsp.KeyImport")
 	// get the public key in the right format
 	certPubK, err := msp.bccsp.KeyImport(cert, &bccsp.X509PublicKeyImportOpts{Temporary: true})
 
-	fmt.Println("xxx mspimpl.go begin msp.bccsp.GetHashOpt")
+	mylogger.Info("GetHashOpt")
 	// Use the hash of the identity's certificate as id in the IdentityIdentifier
 	hashOpt, err := bccsp.GetHashOpt(msp.cryptoConfig.IdentityIdentifierHashFunction)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getIdentityFromConf failed getting hash function options [%s]", err)
 	}
-
-	fmt.Println("xxx mspimpl.go begin msp.bccsp.Hash")
+	mylogger.Info("Hash")
 	digest, err := msp.bccsp.Hash(cert.Raw, hashOpt)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getIdentityFromConf failed hashing raw certificate to compute the id of the IdentityIdentifier [%s]", err)
 	}
 
-	fmt.Println("xxx mspimpl.go begin new IdentityIdentifier")
+	mylogger.Info("create IdentityIdentifier{}")
 	id := &IdentityIdentifier{
 		Mspid: msp.name,
 		Id:    hex.EncodeToString(digest)}
 
-	fmt.Println("xxx mspimpl.go begin new newIdentity")	
+	mylogger.Info("newIdentity")
 	mspId, err := newIdentity(id, cert, certPubK, msp)
-	fmt.Printf("xxx mspimpl.go end new newIdentity [%s]",err)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	fmt.Printf("xxx mspimpl.go getIdentityFromConf return ")	
+	mylogger.Info("exit getIdentityFromConf\n")
 	return mspId, certPubK, nil
 }
 
@@ -291,6 +289,7 @@ func isCACert(cert *x509.Certificate) bool {
 // for this MSP, given an MSPConfig ref; it
 // returns nil in case of success or an error otherwise
 func (msp *bccspmsp) Setup(conf1 *m.MSPConfig) error {
+	mylogger.Info("entry Setup ")
 	if conf1 == nil {
 		return fmt.Errorf("Setup error: nil conf reference")
 	}
@@ -306,55 +305,55 @@ func (msp *bccspmsp) Setup(conf1 *m.MSPConfig) error {
 	msp.name = conf.Name
 	mspLogger.Debugf("Setting up MSP instance %s", msp.name)
 
-	mspLogger.Info("xxxxx  //// setup crypto config")
+	mylogger.Info("xxxxx  //// setup crypto config")
 	// setup crypto config
 	if err := msp.setupCrypto(conf); err != nil {
 		return err
 	}
 
-	mspLogger.Info("xxxxx  //// Setup CAs")
+	mylogger.Info("xxxxx  //// Setup CAs")
 	// Setup CAs
 	if err := msp.setupCAs(conf); err != nil {
 		return err
 	}
 
-	mspLogger.Info("xxxxx  //// Setup Admins")
+	mylogger.Info("xxxxx  //// Setup Admins")
 	// Setup Admins
 	if err := msp.setupAdmins(conf); err != nil {
 		return err
 	}
 
-	mspLogger.Info("xxxxx  //// Setup CRLs")
+	mylogger.Info("xxxxx  //// Setup CRLs")
 	// Setup CRLs
 	if err := msp.setupCRLs(conf); err != nil {
 		return err
 	}
 
-	mspLogger.Info("xxxxx  //// Finalize setup of the CAs")
+	mylogger.Info("xxxxx  //// Finalize setup of the CAs")
 	// Finalize setup of the CAs
 	if err := msp.finalizeSetupCAs(conf); err != nil {
 		return err
 	}
 
-	mspLogger.Info("xxxxx  //// setup the signer")
+	mylogger.Info("xxxxx  //// setup the signer")
 	// setup the signer (if present)
 	if err := msp.setupSigningIdentity(conf); err != nil {
 		return err
 	}
 
-	mspLogger.Info("xxxxx  //// setup the OUs")
+	mylogger.Info("xxxxx  //// setup the OUs")
 	// setup the OUs
 	if err := msp.setupOUs(conf); err != nil {
 		return err
 	}
 
-	mspLogger.Info("xxxxx  //// setup the CAs")
+	mylogger.Info("xxxxx  //// setup the CAs")
 	// setup TLS CAs
 	if err := msp.setupTLSCAs(conf); err != nil {
 		return err
 	}
 
-	mspLogger.Info("xxxxx  //// range amdins")
+	mylogger.Info("xxxxx  //// range amdins")
 	// make sure that admins are valid members as well
 	// this way, when we validate an admin MSP principal
 	// we can simply check for exact match of certs
@@ -365,7 +364,7 @@ func (msp *bccspmsp) Setup(conf1 *m.MSPConfig) error {
 		}
 	}
 
-	mspLogger.Info("xxxxx  //// setup return")
+	mylogger.Info("xxxxx  //// setup return")
 	return nil
 }
 
@@ -614,11 +613,15 @@ func (msp *bccspmsp) getCertificationChainForBCCSPIdentity(id *identity) ([]*x50
 	return msp.getValidationChain(id.cert, false)
 }
 
+
+
+
 func (msp *bccspmsp) getUniqueValidationChain(cert *x509.Certificate, opts x509.VerifyOptions) ([]*x509.Certificate, error) {
 	// ask golang to validate the cert for us based on the options that we've built at setup time
 	if msp.opts == nil {
 		return nil, fmt.Errorf("The supplied identity has no verify options")
 	}
+
 	validationChains, err := cert.Verify(opts)
 	if err != nil {
 		return nil, fmt.Errorf("The supplied identity is not valid, Verify() returned %s", err)
@@ -715,9 +718,8 @@ func (msp *bccspmsp) setupCAs(conf *m.FabricMSPConfig) error {
 	if len(conf.RootCerts) == 0 {
 		return errors.New("Expected at least one CA certificate")
 	}
-
-	logger.Info("xxxx test log")
-	fmt.Println("xxxx1111111111111111111  setupCAs VerifyOptions  xxx")
+	mylogger.Info("entry setupCAs")
+	mylogger.Info("x509.VerifyOptions { }")
 	// pre-create the verify options with roots and intermediates.
 	// This is needed to make certificate sanitation working.
 	// Recall that sanitization is applied also to root CA and intermediate
@@ -739,11 +741,12 @@ func (msp *bccspmsp) setupCAs(conf *m.FabricMSPConfig) error {
 		msp.opts.Intermediates.AddCert(cert)
 	}
 
-	fmt.Println("xxxx1111111111111111111  setupCAs range rootcerts  xxx")
+	mylogger.Info("range rootcerts")
 	// Load root and intermediate CA identities
 	// Recall that when an identity is created, its certificate gets sanitized
 	msp.rootCerts = make([]Identity, len(conf.RootCerts))
 	for i, trustedCert := range conf.RootCerts {
+		mylogger.Info("for range roocert getIdentityFromConf")
 		id, _, err := msp.getIdentityFromConf(trustedCert)
 		if err != nil {
 			return err
@@ -752,7 +755,7 @@ func (msp *bccspmsp) setupCAs(conf *m.FabricMSPConfig) error {
 		msp.rootCerts[i] = id
 	}
 
-	fmt.Println("xxxx1111111111111111111  setupCAs range IntermediateCerts  xxx")
+	mylogger.Info("range IntermediateCerts")
 	// make and fill the set of intermediate certs (if present)
 	msp.intermediateCerts = make([]Identity, len(conf.IntermediateCerts))
 	for i, trustedCert := range conf.IntermediateCerts {
@@ -765,19 +768,35 @@ func (msp *bccspmsp) setupCAs(conf *m.FabricMSPConfig) error {
 	}
 
 
-
-	fmt.Println("xxxx1111111111111111111  3333 xxx")
-
+	mylogger.Info("root CA and intermediate CA certificates")
 	// root CA and intermediate CA certificates are sanitized, they can be reimported
 	msp.opts = &x509.VerifyOptions{Roots: x509.NewCertPool(), Intermediates: x509.NewCertPool()}
+	mylogger.Info("after x509.VerifyOptions  range msp.rootCerts")
+	mylogger.Infof("msp.rootCerts len:%d",len(msp.rootCerts))
 	for _, id := range msp.rootCerts {
-		msp.opts.Roots.AddCert(id.(*identity).cert)
+		//rcert := id.(*identity).cert
+		mylogger.Info("for get root cert")
+		mylogger.Infof("get root cert id: %+v \n",id)
+
+		newid := id.(*identity)
+		mylogger.Infof("get root newid: %+v\n",newid)
+
+		rcert := newid.cert
+		mylogger.Infof("end root rcert:%+v\n",rcert)
+
+		msp.opts.Roots.AddCert(rcert)
 	}
+	mylogger.Infof("range  msp.intermediateCerts len : %d",len(msp.intermediateCerts))
 	for _, id := range msp.intermediateCerts {
-		msp.opts.Intermediates.AddCert(id.(*identity).cert)
+
+		mylogger.Info("get cert")
+		rcert := id.(*identity).cert
+		mylogger.Infof("end cert,%v",rcert)
+
+		msp.opts.Intermediates.AddCert(rcert)
 	}
 
-	fmt.Println("xxxx1111111111111111111  4444 xxx")
+	mylogger.Info("make and fill the set of admin certs")
 	// make and fill the set of admin certs (if present)
 	msp.admins = make([]Identity, len(conf.Admins))
 	for i, admCert := range conf.Admins {
@@ -788,7 +807,7 @@ func (msp *bccspmsp) setupCAs(conf *m.FabricMSPConfig) error {
 
 		msp.admins[i] = id
 	}
-	fmt.Println("xxxx1111111111111111111  return xxx")
+	mylogger.Info("exit setupCAs \n")
 	return nil
 }
 
@@ -1000,21 +1019,28 @@ func (msp *bccspmsp) setupTLSCAs(conf *m.FabricMSPConfig) error {
 	return nil
 }
 
+//
+func sm2chain(cert *x509.Certificate) ([]*x509.Certificate, error){
+	var candidateChains [][]*x509.Certificate
+	candidateChains = append(candidateChains, []*x509.Certificate{cert})
+	return candidateChains[0],nil
+}
+
 // sanitizeCert ensures that x509 certificates signed using ECDSA
 // do have signatures in Low-S. If this is not the case, the certificate
 // is regenerated to have a Low-S signature.
 func (msp *bccspmsp) sanitizeCert(cert *x509.Certificate) (*x509.Certificate, error) {
-	mspLogger.Info("xxx in sanitizeCert")
+	mylogger.Info("xxx entry sanitizeCert")
 	if isSM2SignedCert(cert) {
-		mspLogger.Info("xxx cert isSM2SignedCert")
+		mylogger.Info("xxx cert isSM2SignedCert")
 		var parentCert *x509.Certificate
 		if cert.IsCA {
-			mspLogger.Info("xxx cert.IsCA ")
+			mylogger.Info("xxx cert.IsCA ")
 			chain, err := msp.getUniqueValidationChain(cert, msp.getValidityOptsForCert(cert))
 			if err != nil {
 				return nil, err
 			}
-			mspLogger.Info("xxx getUniqueValidationChain over ")
+			mylogger.Info("xxx getUniqueValidationChain over ")
 			if len(chain) == 1 {
 				// cert is a root CA certificate
 				parentCert = cert
@@ -1023,20 +1049,25 @@ func (msp *bccspmsp) sanitizeCert(cert *x509.Certificate) (*x509.Certificate, er
 				parentCert = chain[1]
 			}
 		}else{
-			mspLogger.Info("xxx cert.IsCA not ")
+			mylogger.Info("xxx cert.IsCA not ")
+
 			chain, err := msp.getUniqueValidationChain(cert, msp.getValidityOptsForCert(cert))
-			mspLogger.Info("xxx getUniqueValidationChain over ")
+			//chain, err := sm2chain(cert)
+
+			mylogger.Info("xxx getUniqueValidationChain over ")
 			if err != nil {
+				mylogger.Errorf(" msp.getUniqueValidationChain error:%s",err)
 				return nil, err
 			}
 			parentCert = chain[1]
 		}
 
-		mspLogger.Info("xxx begin sanitizeSM2SignedCert ")
+		mylogger.Infof("xxx begin sanitizeSM2SignedCert cert=%v",cert)
 		// Sanitize
 		var err error
 		cert, err = sanitizeSM2SignedCert(cert, parentCert)
-		mspLogger.Info("xxx end sanitizeSM2SignedCert ")
+		mylogger.Info("xxx end sanitizeSM2SignedCert ")
+		mylogger.Info("sanitizeSM2SignedCert return cert=%v",cert)
 		if err != nil {
 			return nil, err
 		}

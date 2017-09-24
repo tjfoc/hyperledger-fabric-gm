@@ -128,7 +128,6 @@ func (ki *x509PublicKeyImportOptsKeyImporter) KeyImport(raw interface{}, opts bc
 
 	switch pk.(type) {
 	case sm2.PublicKey:
-		fmt.Println("xxxxxxxxxxxxxxxxxxxxx keyimport.go sm2 pk")
 
 		sm2PublickKey, ok := pk.(sm2.PublicKey)
 		if !ok {
@@ -144,7 +143,6 @@ func (ki *x509PublicKeyImportOptsKeyImporter) KeyImport(raw interface{}, opts bc
 			&bccsp.GMSM2PublicKeyImportOpts{Temporary:opts.Ephemeral()})
 
 	default:
-		fmt.Println("xxxxxxxxxxxxxxxxxxx default k")
 		return nil, errors.New("Certificate's public key type not recognized. Supported keys: [GMSM2]")
 	}
 

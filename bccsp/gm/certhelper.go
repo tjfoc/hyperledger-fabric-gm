@@ -170,6 +170,9 @@ func ParseX509Certificate2Sm2(x509Cert *x509.Certificate) *sm2.Certificate {
 
 //sm2 证书转换 x509 证书
 func ParseSm2Certificate2X509 (sm2Cert *sm2.Certificate) *x509.Certificate{
+	if sm2Cert == nil {
+		return nil
+	}
 	x509cert := &x509.Certificate{
 		Raw: sm2Cert.Raw,
 		RawTBSCertificate: 	sm2Cert.RawTBSCertificate,

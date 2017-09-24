@@ -25,7 +25,6 @@ import (
 	"math/big"
 	"time"
 	"errors"
-	"fmt"
 
 	"github.com/hyperledger/fabric/bccsp/sw"
 	"github.com/hyperledger/fabric/bccsp/gm"
@@ -133,17 +132,16 @@ func sanitizeECDSASignedCert(cert *x509.Certificate, parentCert *x509.Certificat
 
 
 func sanitizeSM2SignedCert(cert *x509.Certificate, parentCert *x509.Certificate) (*x509.Certificate, error) {
-	fmt.Println("xxxx in msp.cert.go sanitizeSM2SignedCert")
+	mylogger.Info("entry sanitizeSM2SignedCert")
 	if cert == nil {
 		return nil, errors.New("Certificate must be different from nil.")
 	}
 	if parentCert == nil {
 		return nil, errors.New("Parent certificate must be different from nil.")
 	}
-	fmt.Println("xxxx in msp.cert.go begin gm.SignatureToLowS xxx")
+	mylogger.Info("call gm SignatureToLowS")
 	sm2puk := parentCert.PublicKey.(sm2.PublicKey)
 	expectedSig, err := gm.SignatureToLowS(&sm2puk, cert.Signature)
-	fmt.Printf("xxxx end in msp.cert.go gm.SignatureToLowS [%s]\n",err)
 	if err != nil {
 		return nil, err
 	}
@@ -157,31 +155,34 @@ func sanitizeSM2SignedCert(cert *x509.Certificate, parentCert *x509.Certificate)
 	// 1. Unmarshal cert.Raw to get an instance of certificate,
 	//    the lower level interface that represent an x509 certificate
 	//    encoding
-	fmt.Println("xxxx 1.Unmarshal cert")
+	mylogger.Info("xxxx 1.Unmarshal cert")
+
 	var newCert certificate
 	_, err = asn1.Unmarshal(cert.Raw, &newCert)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("xxxx 2.Change the signature")
+	mylogger.Info("xxxx 2.Change the signature")
 	// 2. Change the signature
 	newCert.SignatureValue = asn1.BitString{Bytes: expectedSig, BitLength: len(expectedSig) * 8}
 
 	// 3. marshal again newCert. Raw must be nil
-	fmt.Println("xxxx 3. marshal again newCert. Raw must be nil")
+	mylogger.Info("xxxx 3. marshal again newCert. Raw must be nil")
 	newCert.Raw = nil
 	newRaw, err := asn1.Marshal(newCert)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("xxxx 4. return x509.ParseCertificate")
+	mylogger.Info("xxxx 4. return x509.ParseCertificate")
 	// 4. parse newRaw to get an x509 certificate
 	var x509cert *x509.Certificate
 	sm2cert ,err := sm2.ParseCertificate(newRaw)
+	mylogger.Info("sm2.ParseCertificate(newRaw) retreun  cert=%v",sm2cert)
 	if err != nil {
 		x509cert = gm.ParseSm2Certificate2X509(sm2cert)
 	}
+	mylogger.Infof("exit sanitizeSM2SignedCert ParseSm2Certificate2X509 return x509cert=%v",x509cert)
 	return x509cert , err
 }
