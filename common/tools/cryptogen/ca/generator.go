@@ -117,14 +117,11 @@ func (ca *CA) SignCertificate(baseDir, name string, sans []string, pub *sm2.Publ
 
 	template.Subject = subject
 	template.DNSNames = sans
-
+	template.PublicKey = pub
 	// cert, err := genCertificateECDSA(baseDir, name, &template, ca.SignCert,
 	// 	pub, ca.Signer)
 
 	sm2Tpl := gm.ParseX509Certificate2Sm2(&template)
-	if sm2Tpl.PublicKey == nil {
-		sm2Tpl.PublicKey = pub
-	}
 	cert, err := genCertificateGMSM2(baseDir, name, sm2Tpl, ca.SignSm2Cert, pub, ca.Sm2Key)
 
 	if err != nil {
