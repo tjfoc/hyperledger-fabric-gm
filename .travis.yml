@@ -55,7 +55,8 @@ before_script:
  - cd $HOME/gopath/src/github.com/hyperledger/fabric
  #- ls $HOME/gopath/src/golang.org/x/tools
  - chmod -R 777 *
- - goimports -w $GOPATH/src/github.com/hyperledger/fabric/bccsp/
+# - goimports -w $GOPATH/src/github.com/hyperledger/fabric/bccsp/
+ - goimports -w $GOPATH/src/github.com/hyperledger/fabric/
  - make linter
  - cd $GOPATH/src/github.com/hyperledger/fabric
  - make all
