@@ -30,7 +30,10 @@ import (
 	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/hyperledger/fabric/bccsp/gm/sm4"
 	"github.com/hyperledger/fabric/bccsp/utils"
+	"github.com/hyperledger/fabric/common/flogging"
 )
+
+var mylogger = flogging.MustGetLogger("xxx bccsp.gm xx")
 
 // NewFileBasedKeyStore instantiated a file-based key store at a given position.
 // The key store can be encrypted if a non-empty password is specifiec.
@@ -115,6 +118,7 @@ func (ks *fileBasedKeyStore) GetKey(ski []byte) (k bccsp.Key, err error) {
 	}
 
 	suffix := ks.getSuffix(hex.EncodeToString(ski))
+	mylogger.Info("ks.getSuffix return suffix:", suffix)
 
 	switch suffix {
 	case "key":
@@ -306,6 +310,7 @@ func (ks *fileBasedKeyStore) storeKey(alias string, key []byte) error {
 
 func (ks *fileBasedKeyStore) loadPrivateKey(alias string) (interface{}, error) {
 	path := ks.getPathForAlias(alias, "sk")
+	logger.Infof("loadPrivateKey : %s", path)
 	logger.Debugf("Loading private key [%s] at [%s]...", alias, path)
 
 	raw, err := ioutil.ReadFile(path)
@@ -328,6 +333,7 @@ func (ks *fileBasedKeyStore) loadPrivateKey(alias string) (interface{}, error) {
 
 func (ks *fileBasedKeyStore) loadPublicKey(alias string) (interface{}, error) {
 	path := ks.getPathForAlias(alias, "pk")
+	mylogger.Infof("loadPublicKey : %s", path)
 	logger.Debugf("Loading public key [%s] at [%s]...", alias, path)
 
 	raw, err := ioutil.ReadFile(path)
@@ -350,6 +356,7 @@ func (ks *fileBasedKeyStore) loadPublicKey(alias string) (interface{}, error) {
 
 func (ks *fileBasedKeyStore) loadKey(alias string) ([]byte, error) {
 	path := ks.getPathForAlias(alias, "key")
+	logger.Infof("loadKey : %s", path)
 	logger.Debugf("Loading key [%s] at [%s]...", alias, path)
 
 	pem, err := ioutil.ReadFile(path)

@@ -38,6 +38,7 @@ import (
 )
 
 var logger = flogging.MustGetLogger("main")
+var mylogger = flogging.MustGetLogger("xxx peer xx")
 var logOutput = os.Stderr
 
 // Constants go here.
@@ -108,6 +109,8 @@ func main() {
 	// Init the MSP
 	var mspMgrConfigDir = config.GetPath("peer.mspConfigPath")
 	var mspID = viper.GetString("peer.localMspId")
+
+	mylogger.Infof("before InitCrypto ,mspMgrConfigDir:[%s],mspID:[%s]", mspMgrConfigDir, mspID)
 	err = common.InitCrypto(mspMgrConfigDir, mspID)
 	if err != nil { // Handle errors reading the config file
 		logger.Errorf("Cannot run peer because %s", err.Error())

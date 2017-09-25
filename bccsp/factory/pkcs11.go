@@ -50,7 +50,7 @@ func setFactories(config *FactoryOpts) error {
 	}
 
 	if config.ProviderName == "" {
-		config.ProviderName = "SW"
+		config.ProviderName = "GM"
 	}
 
 	if config.SwOpts == nil {
@@ -65,7 +65,7 @@ func setFactories(config *FactoryOpts) error {
 		var f BCCSPFactory
 		if strings.ToUpper(config.ProviderName) == "GM" {
 			f = &GMFactory{}
-		}else{
+		} else {
 			f = &SWFactory{}
 		}
 		err := initBCCSP(f, config)

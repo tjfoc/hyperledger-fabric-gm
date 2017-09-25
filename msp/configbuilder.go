@@ -128,6 +128,18 @@ func SetupBCCSPKeystoreConfig(bccspConfig *factory.FactoryOpts, keystoreDir stri
 			bccspConfig.SwOpts.FileKeystore = &factory.FileKeystoreOpts{KeyStorePath: keystoreDir}
 		}
 	}
+	if bccspConfig.ProviderName == "GM" {
+		if bccspConfig.SwOpts == nil {
+			bccspConfig.SwOpts = factory.GetDefaultOpts().SwOpts
+		}
+
+		// Only override the KeyStorePath if it was left empty
+		if bccspConfig.SwOpts.FileKeystore == nil ||
+			bccspConfig.SwOpts.FileKeystore.KeyStorePath == "" {
+			bccspConfig.SwOpts.Ephemeral = false
+			bccspConfig.SwOpts.FileKeystore = &factory.FileKeystoreOpts{KeyStorePath: keystoreDir}
+		}
+	}
 
 	return bccspConfig
 }
@@ -136,6 +148,8 @@ func GetLocalMspConfig(dir string, bccspConfig *factory.FactoryOpts, ID string) 
 	signcertDir := filepath.Join(dir, signcerts)
 	keystoreDir := filepath.Join(dir, keystore)
 	bccspConfig = SetupBCCSPKeystoreConfig(bccspConfig, keystoreDir)
+
+	mylogger.Infof("xxx GetLocalMspConfig bccspConfig.ProviderName = %s xxx", bccspConfig.ProviderName)
 
 	err := factory.InitFactories(bccspConfig)
 	if err != nil {
@@ -171,13 +185,13 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 	tlscacertDir := filepath.Join(dir, tlscacerts)
 	tlsintermediatecertsDir := filepath.Join(dir, tlsintermediatecerts)
 
-	mylogger.Infof("get cacert (rootcerts) config from  /////////  %s   ///////",cacertDir)
+	mylogger.Infof("get cacert (rootcerts) config from  /////////  %s   ///////", cacertDir)
 	cacerts, err := getPemMaterialFromDir(cacertDir)
 	if err != nil || len(cacerts) == 0 {
 		return nil, fmt.Errorf("Could not load a valid ca certificate from directory %s, err %s", cacertDir, err)
 	}
 
-	mylogger.Infof("get admincert config from  /////////  %s   ///////",admincertDir)
+	mylogger.Infof("get admincert config from  /////////  %s   ///////", admincertDir)
 	admincert, err := getPemMaterialFromDir(admincertDir)
 	if err != nil || len(admincert) == 0 {
 		return nil, fmt.Errorf("Could not load a valid admin certificate from directory %s, err %s", admincertDir, err)

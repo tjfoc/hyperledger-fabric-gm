@@ -39,6 +39,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+var mylogger = flogging.MustGetLogger("xxx peer.common xx")
+
 // UndefinedParamValue defines what undefined parameters in the command line will initialise to
 const UndefinedParamValue = ""
 
@@ -101,6 +103,11 @@ func InitCrypto(mspMgrConfigDir string, localMSPID string) error {
 		return fmt.Errorf("could not parse YAML config [%s]", err)
 	}
 
+	mylogger.Info("before LoadLocalMsp forse GetDefaultOpts !")
+	bccspConfig = factory.GetDefaultOpts()
+	if bccspConfig != nil {
+		mylogger.Info("bccspConfig ProviderName :", bccspConfig.ProviderName)
+	}
 	err = mspmgmt.LoadLocalMsp(mspMgrConfigDir, bccspConfig, localMSPID)
 	if err != nil {
 		return fmt.Errorf("error when setting up MSP from directory %s: err %s", mspMgrConfigDir, err)

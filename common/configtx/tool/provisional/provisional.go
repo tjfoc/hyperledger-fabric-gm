@@ -128,7 +128,8 @@ func New(conf *genesisconfig.Profile) Generator {
 			policies.TemplateImplicitMetaMajorityPolicy([]string{config.OrdererGroupKey}, configvaluesmsp.AdminsPolicyKey),
 		}
 
-		logger.Infof("xxx begin range config.Orderer.Organizations,len:%d",len(conf.Orderer.Organizations))
+		logger.Infof("xxx begin range config.Orderer.Organizations,len:%d", len(conf.Orderer.Organizations))
+
 		for _, org := range conf.Orderer.Organizations {
 			mspConfig, err := msp.GetVerifyingMspConfig(org.MSPDir, org.ID)
 			if err != nil {
@@ -141,7 +142,7 @@ func New(conf *genesisconfig.Profile) Generator {
 			)
 		}
 
-		logger.Infof("xxx begin  switch conf.Orderer.OrdererType",conf.Orderer.OrdererType)
+		logger.Infof("xxx begin  switch conf.Orderer.OrdererType", conf.Orderer.OrdererType)
 		switch conf.Orderer.OrdererType {
 		case ConsensusTypeSolo:
 		case ConsensusTypeKafka:
@@ -151,7 +152,7 @@ func New(conf *genesisconfig.Profile) Generator {
 		}
 	}
 
-	logger.Infof("xxx begin  conf.Application:%+v",conf.Application)
+	logger.Infof("xxx begin  conf.Application:%+v", conf.Application)
 	if conf.Application != nil {
 
 		bs.applicationGroups = []*cb.ConfigGroup{

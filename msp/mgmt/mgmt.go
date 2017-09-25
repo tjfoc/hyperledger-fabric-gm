@@ -29,12 +29,18 @@ import (
 	"github.com/hyperledger/fabric/msp"
 )
 
+var mylogger = flogging.MustGetLogger("xxx msp.mgmt xx")
+
 // LoadLocalMsp loads the local MSP from the specified directory
 func LoadLocalMsp(dir string, bccspConfig *factory.FactoryOpts, mspID string) error {
 	if mspID == "" {
 		return errors.New("The local MSP must have an ID")
 	}
 
+	mylogger.Info("before GetLocalMspConfig ")
+	if bccspConfig != nil {
+		mylogger.Info("bccspConfig ProviderName :", bccspConfig.ProviderName)
+	}
 	conf, err := msp.GetLocalMspConfig(dir, bccspConfig, mspID)
 	if err != nil {
 		return err
