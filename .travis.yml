@@ -85,7 +85,16 @@ after_failure:
    sudo ./scripts/containerlogs.sh
 
 notifications:
-  email: true
-  slack: 'hyperledgerproject:azMP8Mw3cfGigXkqi5RujZXr'
-  on_success: always
-  on_failure: always
+  #email: true
+  #slack: 'hyperledgerproject:azMP8Mw3cfGigXkqi5RujZXr'
+   email:
+    recipients:
+      - zhiqiang@tj-fintech.com
+      - yanwenze@tj-fintech.com
+      - maoxiuze@tj-fintech.com
+      - yewei@tj-fintech.com
+      
+    on_success: always # default: change
+    on_failure: always # default: always
+  
+ 
