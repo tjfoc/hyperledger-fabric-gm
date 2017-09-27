@@ -32,6 +32,8 @@ var (
 	logger = flogging.MustGetLogger("bccsp_sw")
 )
 
+var mylogger = flogging.MustGetLogger("xx bccsp_sw xx")
+
 // NewDefaultSecurityLevel returns a new instance of the software-based BCCSP
 // at security level 256, hash family SHA2 and using FolderBasedKeyStore as KeyStore.
 func NewDefaultSecurityLevel(keyStorePath string) (bccsp.BCCSP, error) {
@@ -52,6 +54,10 @@ func NewDefaultSecurityLevelWithKeystore(keyStore bccsp.KeyStore) (bccsp.BCCSP, 
 // New returns a new instance of the software-based BCCSP
 // set at the passed security level, hash family and KeyStore.
 func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.BCCSP, error) {
+
+	mylogger.Info("/************************************/")
+	mylogger.Info("/*********start new SW BCCSP*********/")
+
 	// Init config
 	conf := &config{}
 	err := conf.setSecurityLevel(securityLevel, hashFamily)
@@ -135,6 +141,9 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	keyImporters[reflect.TypeOf(&bccsp.X509PublicKeyImportOpts{})] = &x509PublicKeyImportOptsKeyImporter{bccsp: impl}
 
 	impl.keyImporters = keyImporters
+
+	mylogger.Info("/*********ended new SW BCCSP*********/")
+	mylogger.Info("/************************************/")
 
 	return impl, nil
 }

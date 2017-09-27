@@ -110,16 +110,19 @@ func main() {
 	var mspMgrConfigDir = config.GetPath("peer.mspConfigPath")
 	var mspID = viper.GetString("peer.localMspId")
 
-	mylogger.Infof("before InitCrypto ,mspMgrConfigDir:[%s],mspID:[%s]", mspMgrConfigDir, mspID)
+	mylogger.Infof("1111 before InitCrypto ,mspMgrConfigDir:[%s],mspID:[%s]", mspMgrConfigDir, mspID)
 	err = common.InitCrypto(mspMgrConfigDir, mspID)
 	if err != nil { // Handle errors reading the config file
 		logger.Errorf("Cannot run peer because %s", err.Error())
 		os.Exit(1)
 	}
+	logger.Info("xxxxxxxxxxxxxxxxx no  run  xxxxxxxxxxxxxxxxxxxxxxxx")
 	// On failure Cobra prints the usage message and error string, so we only
 	// need to exit with a non-0 status
-	if mainCmd.Execute() != nil {
-		os.Exit(1)
-	}
+	/*
+		if mainCmd.Execute() != nil {
+			os.Exit(1)
+		}
+	*/
 	logger.Info("Exiting.....")
 }

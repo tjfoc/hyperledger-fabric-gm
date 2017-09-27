@@ -42,7 +42,7 @@ import (
 )
 
 var exitCode = 0
-
+var mylogger = flogging.MustGetLogger("xx configtx xx")
 var logger = flogging.MustGetLogger("common/configtx/tool")
 
 func doOutputBlock(config *genesisconfig.Profile, channelID string, outputBlock string) error {
@@ -341,6 +341,13 @@ func doInspectChannelCreateTx(inspectChannelCreateTx string) error {
 }
 
 func main() {
+
+	mylogger.Info("============================================================")
+	mylogger.Info("============================================================")
+	mylogger.Info("====================in configtxgen  main====================")
+	mylogger.Info("============================================================")
+	mylogger.Info("============================================================")
+
 	var outputBlock, outputChannelCreateTx, profile, channelID, inspectBlock, inspectChannelCreateTx, outputAnchorPeersUpdate, asOrg string
 
 	flag.StringVar(&outputBlock, "outputBlock", "", "The path to write the genesis block to (if set)")
@@ -378,43 +385,43 @@ func main() {
 
 	logger.Info("Loading configuration")
 	factory.InitFactories(nil)
-	logger.Infof("xxx InitFactories over xxx,profile: %s",profile)
+	mylogger.Infof("xxx InitFactories over xxx,profile: %s", profile)
 	config := genesisconfig.Load(profile)
-	logger.Infof("xxx genesisconfig.Load(profile) over,return config:[%+v]",config)
+	mylogger.Infof("xxx genesisconfig.Load(profile) over,return config:[%+v]", config)
 
-	logger.Infof("xxx outputBlock:[%s]",outputBlock)
+	mylogger.Infof("xxx outputBlock:[%s]", outputBlock)
 	if outputBlock != "" {
-		logger.Infof("xxx begin doOutputBlock, channelID:[%s]",channelID)
+		logger.Infof("xxx begin doOutputBlock, channelID:[%s]", channelID)
 		if err := doOutputBlock(config, channelID, outputBlock); err != nil {
-			logger.Fatalf("Error on outputBlock: %s", err)
-		} else{
-			logger.Info("xxx end doOutputBlock ok.")
+			mylogger.Fatalf("Error on outputBlock: %s", err)
+		} else {
+			mylogger.Info("xxx end doOutputBlock ok.")
 		}
-		logger.Info("xxx end doOutputBlock")
+		mylogger.Info("xxx end doOutputBlock")
 	}
 
-	logger.Infof("xxx outputChannelCreateTx:[%s]",outputChannelCreateTx)
+	mylogger.Infof("xxx outputChannelCreateTx:[%s]", outputChannelCreateTx)
 	if outputChannelCreateTx != "" {
 		if err := doOutputChannelCreateTx(config, channelID, outputChannelCreateTx); err != nil {
 			logger.Fatalf("Error on outputChannelCreateTx: %s", err)
 		}
 	}
 
-	logger.Infof("xxx inspectBlock:[%s]",inspectBlock)
+	mylogger.Infof("xxx inspectBlock:[%s]", inspectBlock)
 	if inspectBlock != "" {
 		if err := doInspectBlock(inspectBlock); err != nil {
 			logger.Fatalf("Error on inspectBlock: %s", err)
 		}
 	}
 
-	logger.Infof("xxx inspectChannelCreateTx:[%s]",inspectChannelCreateTx)
+	mylogger.Infof("xxx inspectChannelCreateTx:[%s]", inspectChannelCreateTx)
 	if inspectChannelCreateTx != "" {
 		if err := doInspectChannelCreateTx(inspectChannelCreateTx); err != nil {
 			logger.Fatalf("Error on inspectChannelCreateTx: %s", err)
 		}
 	}
 
-	logger.Infof("xxx outputAnchorPeersUpdate:[%s]",outputAnchorPeersUpdate)
+	mylogger.Infof("xxx outputAnchorPeersUpdate:[%s]", outputAnchorPeersUpdate)
 	if outputAnchorPeersUpdate != "" {
 		if err := doOutputAnchorPeersUpdate(config, channelID, outputAnchorPeersUpdate, asOrg); err != nil {
 			logger.Fatalf("Error on inspectChannelCreateTx: %s", err)

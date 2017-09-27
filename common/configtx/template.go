@@ -247,6 +247,7 @@ func (cct *channelCreationTemplate) Envelope(channelID string) (*cb.ConfigUpdate
 
 // MakeChainCreationTransaction is a handy utility function for creating new chain transactions using the underlying Template framework
 func MakeChainCreationTransaction(channelID string, consortium string, signer msp.SigningIdentity, orgs ...string) (*cb.Envelope, error) {
+	fmt.Printf("++++++++++++++++++++++++++++++++\nsigner = %v\n++++++++++++++++++++++++++++\n")
 	newChainTemplate := NewChainCreationTemplate(consortium, orgs)
 	newConfigUpdateEnv, err := newChainTemplate.Envelope(channelID)
 	if err != nil {

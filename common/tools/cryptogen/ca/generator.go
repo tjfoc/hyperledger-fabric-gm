@@ -118,6 +118,7 @@ func (ca *CA) SignCertificate(baseDir, name string, sans []string, pub *sm2.Publ
 	template.Subject = subject
 	template.DNSNames = sans
 	template.PublicKey = pub
+
 	// cert, err := genCertificateECDSA(baseDir, name, &template, ca.SignCert,
 	// 	pub, ca.Signer)
 

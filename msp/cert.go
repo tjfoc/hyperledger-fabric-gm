@@ -22,14 +22,13 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	"errors"
 	"math/big"
 	"time"
-	"errors"
 
-	"github.com/hyperledger/fabric/bccsp/sw"
 	"github.com/hyperledger/fabric/bccsp/gm"
 	"github.com/hyperledger/fabric/bccsp/gm/sm2"
-	
+	"github.com/hyperledger/fabric/bccsp/sw"
 )
 
 type dsaSignature struct {
@@ -130,7 +129,6 @@ func sanitizeECDSASignedCert(cert *x509.Certificate, parentCert *x509.Certificat
 	return x509.ParseCertificate(newRaw)
 }
 
-
 func sanitizeSM2SignedCert(cert *x509.Certificate, parentCert *x509.Certificate) (*x509.Certificate, error) {
 	mylogger.Info("entry sanitizeSM2SignedCert")
 	if cert == nil {
@@ -151,7 +149,9 @@ func sanitizeSM2SignedCert(cert *x509.Certificate, parentCert *x509.Certificate)
 		mylogger.Info("gm.SignatureToLowS equal , sig == cert.Signature, nothing needs to be done ")
 		return cert, nil
 	}
+
 	return cert, nil
+
 	// otherwise create a new certificate with the new signature
 
 	// 1. Unmarshal cert.Raw to get an instance of certificate,
@@ -180,11 +180,12 @@ func sanitizeSM2SignedCert(cert *x509.Certificate, parentCert *x509.Certificate)
 	// mylogger.Info("xxxx 4. return x509.ParseCertificate")
 	// // 4. parse newRaw to get an x509 certificate
 	// var x509cert *x509.Certificate
-	// sm2cert ,err := sm2.ParseCertificate(newRaw)
-	// mylogger.Info("sm2.ParseCertificate(newRaw) retreun  cert=%v",sm2cert)
-	// if err != nil {
+	// sm2cert, err := sm2.ParseCertificate(newRaw)
+	// mylogger.Infof("sm2.ParseCertificate(newRaw) retreun sm2cert is nil ? %t", sm2cert == nil)
+	// if err == nil {
 	// 	x509cert = gm.ParseSm2Certificate2X509(sm2cert)
 	// }
-	// mylogger.Infof("exit sanitizeSM2SignedCert ParseSm2Certificate2X509 return x509cert is nil ? %T",x509cert==nil)
-	// return x509cert , err
+	// mylogger.Infof("gm.ParseSm2Certificate2X509(newRaw) retreun x509cert is nil ? %t", x509cert == nil)
+	// mylogger.Infof("exit sanitizeSM2SignedCert ParseSm2Certificate2X509 return x509cert is nil ? %T", x509cert == nil)
+	// return x509cert, err
 }

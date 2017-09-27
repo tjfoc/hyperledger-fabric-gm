@@ -26,9 +26,12 @@ import (
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
 	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/ca"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/csp"
 )
+
+var mylogger = flogging.MustGetLogger("xx cryptogen xx")
 
 func GenerateLocalMSP(baseDir, name string, sans []string, signCA *ca.CA,
 	tlsCA *ca.CA) error {
@@ -168,6 +171,12 @@ func GenerateVerifyingMSP(baseDir string, signCA *ca.CA, tlsCA *ca.CA) error {
 	priv, err := bcsp.KeyGen(&bccsp.GMSM2KeyGenOpts{Temporary: true})
 	//ecPubKey, err := csp.GetECPublicKey(priv)
 	sm2PubKey, err := csp.GetSM2PublicKey(priv)
+
+	//mylogger.Infof("csp.GetSM2PublicKey(priv) return sm2PubKey: %v", sm2PubKey)
+	//
+	//xx
+	//csp.GeneratePrivateKey()
+	//
 	if err != nil {
 		return err
 	}

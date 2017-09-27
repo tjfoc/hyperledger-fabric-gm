@@ -103,11 +103,11 @@ func InitCrypto(mspMgrConfigDir string, localMSPID string) error {
 		return fmt.Errorf("could not parse YAML config [%s]", err)
 	}
 
-	mylogger.Info("before LoadLocalMsp forse GetDefaultOpts !")
-	bccspConfig = factory.GetDefaultOpts()
-	if bccspConfig != nil {
-		mylogger.Info("bccspConfig ProviderName :", bccspConfig.ProviderName)
-	}
+	// bccspConfig = factory.GetDefaultOpts()
+	// if bccspConfig != nil {
+	// 	mylogger.Info("bccspConfig ProviderName :", bccspConfig.ProviderName)
+	// 	mylogger.Infof("set ks:", bccspConfig.SwOpts.FileKeystore.KeyStorePath)
+	// }
 	err = mspmgmt.LoadLocalMsp(mspMgrConfigDir, bccspConfig, localMSPID)
 	if err != nil {
 		return fmt.Errorf("error when setting up MSP from directory %s: err %s", mspMgrConfigDir, err)

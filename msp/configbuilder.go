@@ -149,8 +149,6 @@ func GetLocalMspConfig(dir string, bccspConfig *factory.FactoryOpts, ID string) 
 	keystoreDir := filepath.Join(dir, keystore)
 	bccspConfig = SetupBCCSPKeystoreConfig(bccspConfig, keystoreDir)
 
-	mylogger.Infof("xxx GetLocalMspConfig bccspConfig.ProviderName = %s xxx", bccspConfig.ProviderName)
-
 	err := factory.InitFactories(bccspConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Could not initialize BCCSP Factories [%s]", err)
@@ -169,6 +167,7 @@ func GetLocalMspConfig(dir string, bccspConfig *factory.FactoryOpts, ID string) 
 
 	sigid := &msp.SigningIdentityInfo{PublicSigner: signcert[0], PrivateSigner: nil}
 
+	mylogger.Infof("&msp.SigningIdentityInfo{PublicSigner: signcert[0], PrivateSigner: nil}:%v", sigid)
 	return getMspConfig(dir, ID, sigid)
 }
 
@@ -177,6 +176,7 @@ func GetVerifyingMspConfig(dir string, ID string) (*msp.MSPConfig, error) {
 }
 
 func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.MSPConfig, error) {
+	mylogger.Infof("in getMspConfig")
 	cacertDir := filepath.Join(dir, cacerts)
 	admincertDir := filepath.Join(dir, admincerts)
 	intermediatecertsDir := filepath.Join(dir, intermediatecerts)
@@ -185,13 +185,14 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 	tlscacertDir := filepath.Join(dir, tlscacerts)
 	tlsintermediatecertsDir := filepath.Join(dir, tlsintermediatecerts)
 
-	mylogger.Infof("get cacert (rootcerts) config from  /////////  %s   ///////", cacertDir)
+	mylogger.Infof("cacert   :%s", cacertDir)
+	mylogger.Infof("admincert:%s", admincertDir)
+	mylogger.Infof("tlscert  :%s", tlscacertDir)
 	cacerts, err := getPemMaterialFromDir(cacertDir)
 	if err != nil || len(cacerts) == 0 {
 		return nil, fmt.Errorf("Could not load a valid ca certificate from directory %s, err %s", cacertDir, err)
 	}
 
-	mylogger.Infof("get admincert config from  /////////  %s   ///////", admincertDir)
 	admincert, err := getPemMaterialFromDir(admincertDir)
 	if err != nil || len(admincert) == 0 {
 		return nil, fmt.Errorf("Could not load a valid admin certificate from directory %s, err %s", admincertDir, err)

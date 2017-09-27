@@ -131,7 +131,9 @@ func New(conf *genesisconfig.Profile) Generator {
 		logger.Infof("xxx begin range config.Orderer.Organizations,len:%d", len(conf.Orderer.Organizations))
 
 		for _, org := range conf.Orderer.Organizations {
+			logger.Infof("++++++++++++++++++++++++++++++++++++org: %v", org)
 			mspConfig, err := msp.GetVerifyingMspConfig(org.MSPDir, org.ID)
+			logger.Info(" =============== end  msp.GetVerifyingMspConfig(org.MSPDir, org.ID)")
 			if err != nil {
 				logger.Panicf("1 - Error loading MSP configuration for org %s: %s", org.Name, err)
 			}
@@ -142,7 +144,7 @@ func New(conf *genesisconfig.Profile) Generator {
 			)
 		}
 
-		logger.Infof("xxx begin  switch conf.Orderer.OrdererType", conf.Orderer.OrdererType)
+		logger.Infof("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX begin  switch conf.Orderer.OrdererType", conf.Orderer.OrdererType)
 		switch conf.Orderer.OrdererType {
 		case ConsensusTypeSolo:
 		case ConsensusTypeKafka:
