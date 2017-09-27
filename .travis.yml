@@ -85,7 +85,7 @@ after_failure:
    sudo ./scripts/containerlogs.sh
 
 notifications:
-
+  email: true
   slack: 'hyperledgerproject:azMP8Mw3cfGigXkqi5RujZXr'
-  on_success: always
+  on_success: never
   on_failure: always
