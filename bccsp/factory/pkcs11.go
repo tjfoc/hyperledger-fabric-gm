@@ -49,9 +49,12 @@ func setFactories(config *FactoryOpts) error {
 		config = GetDefaultOpts()
 	}
 
-	if config.ProviderName == "" {
-		config.ProviderName = "GM"
-	}
+	// if config.ProviderName == "" {
+	// 	config.ProviderName = "GM"
+	// }
+
+	//暂时由GM替代bccsp
+	config.ProviderName = "GM"
 
 	if config.SwOpts == nil {
 		config.SwOpts = GetDefaultOpts().SwOpts

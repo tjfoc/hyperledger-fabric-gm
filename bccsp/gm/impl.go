@@ -19,12 +19,13 @@ import (
 	"hash"
 	"reflect"
 
+	"crypto/sha256"
+	"crypto/sha512"
+
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/gm/sm3"
 	"github.com/hyperledger/fabric/common/errors"
 	"github.com/hyperledger/fabric/common/flogging"
-	"crypto/sha256"
-	"crypto/sha512"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -34,6 +35,9 @@ var (
 
 // New 实例化 返回支持国密算法的 bccsp.BCCSP
 func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.BCCSP, error) {
+
+	mylogger.Info("/************************************/")
+	mylogger.Info("/*********start new GM BCCSP*********/")
 
 	// Init config
 	conf := &config{}
@@ -98,9 +102,10 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	keyImporters[reflect.TypeOf(&bccsp.GMSM2PrivateKeyImportOpts{})] = &gmsm2PrivateKeyImportOptsKeyImporter{}
 	keyImporters[reflect.TypeOf(&bccsp.GMSM2PublicKeyImportOpts{})] = &gmsm2PublicKeyImportOptsKeyImporter{}
 	keyImporters[reflect.TypeOf(&bccsp.X509PublicKeyImportOpts{})] = &x509PublicKeyImportOptsKeyImporter{bccsp: impl}
-	
-	impl.keyImporters = keyImporters
 
+	impl.keyImporters = keyImporters
+	mylogger.Info("/*********ended new GM BCCSP*********/")
+	mylogger.Info("/************************************/")
 	return impl, nil
 }
 

@@ -33,7 +33,7 @@ import (
 	"github.com/hyperledger/fabric/common/flogging"
 )
 
-var mylogger = flogging.MustGetLogger("xxx bccsp.gm xx")
+var mylogger = flogging.MustGetLogger("xx bccsp_gm xx")
 
 // NewFileBasedKeyStore instantiated a file-based key store at a given position.
 // The key store can be encrypted if a non-empty password is specifiec.
@@ -118,7 +118,7 @@ func (ks *fileBasedKeyStore) GetKey(ski []byte) (k bccsp.Key, err error) {
 	}
 
 	suffix := ks.getSuffix(hex.EncodeToString(ski))
-	mylogger.Info("ks.getSuffix return suffix:", suffix)
+	mylogger.Infof("ks.getSuffix return path: %s , suffix:%s", hex.EncodeToString(ski), suffix)
 
 	switch suffix {
 	case "key":
@@ -236,6 +236,7 @@ func (ks *fileBasedKeyStore) searchKeystoreForSKI(ski []byte) (k bccsp.Key, err 
 }
 
 func (ks *fileBasedKeyStore) getSuffix(alias string) string {
+	mylogger.Infof("before getSuffix from dir : %s", ks.path)
 	files, _ := ioutil.ReadDir(ks.path)
 	for _, f := range files {
 		if strings.HasPrefix(f.Name(), alias) {

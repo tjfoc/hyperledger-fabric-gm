@@ -59,5 +59,6 @@ func (f *GMFactory) Get(config *FactoryOpts) (bccsp.BCCSP, error) {
 		ks = gm.NewDummyKeyStore()
 	}
 
-	return gm.New(gmOpts.SecLevel, gmOpts.HashFamily, ks)
+	return gm.New(gmOpts.SecLevel, "GMSM3", ks)
+	//return gm.New(gmOpts.SecLevel, gmOpts.HashFamily, ks)
 }
