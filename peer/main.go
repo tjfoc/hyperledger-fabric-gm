@@ -74,6 +74,10 @@ var mainCmd = &cobra.Command{
 var versionFlag bool
 
 func main() {
+	logger.Info("===================================================")
+	logger.Info("===============in peer main========================")
+	logger.Info("===================================================")
+
 	// For environment variables.
 	viper.SetEnvPrefix(cmdRoot)
 	viper.AutomaticEnv()
@@ -116,13 +120,11 @@ func main() {
 		logger.Errorf("Cannot run peer because %s", err.Error())
 		os.Exit(1)
 	}
-	logger.Info("xxxxxxxxxxxxxxxxx no  run  xxxxxxxxxxxxxxxxxxxxxxxx")
+	logger.Info("xxxxxxxxxxxxxxxxx run  run  xxxxxxxxxxxxxxxxxxxxxxxx")
 	// On failure Cobra prints the usage message and error string, so we only
 	// need to exit with a non-0 status
-	/*
-		if mainCmd.Execute() != nil {
-			os.Exit(1)
-		}
-	*/
+	if mainCmd.Execute() != nil {
+		os.Exit(1)
+	}
 	logger.Info("Exiting.....")
 }

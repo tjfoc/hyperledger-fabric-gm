@@ -46,7 +46,9 @@ var mylogger = flogging.MustGetLogger("xx configtx xx")
 var logger = flogging.MustGetLogger("common/configtx/tool")
 
 func doOutputBlock(config *genesisconfig.Profile, channelID string, outputBlock string) error {
+
 	logger.Info("xxx in doOutputBlock")
+
 	pgen := provisional.New(config)
 	logger.Info("xxx end new")
 
