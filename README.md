@@ -1,5 +1,8 @@
+Hyperledger Fabric with GM
 
-Hyperledger Fabric with GM 
+支持国密加密算法的Hyperledger Fabric版本
+
+版权所有 苏州同济区块研究院有限公司(http://www.tj-fintech.com(http://www.tj-fintech.com)
 
 Process Results Build Status [![Build Status](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm.svg?branch=develop)](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm)
 
