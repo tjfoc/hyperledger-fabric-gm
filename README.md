@@ -4,7 +4,7 @@ Hyperledger Fabric with GM
 
 版权所有 苏州同济区块研究院有限公司(http://www.tj-fintech.com(http://www.tj-fintech.com)
 
-Process Results Build Status [![Build Status](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm.svg?branch=develop)](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm)
+Process Results Build Status [![Build Status](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm.svg?branch=master)](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm)
 
 Copyright Suzhou Tongji Fintech Research Institute 2017 All Rights Reserved. Licensed under the Apache License, Version 2.0 (the "License");
 
