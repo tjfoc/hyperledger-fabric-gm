@@ -1,7 +1,7 @@
 
 Hyperledger Fabric with GM 
 
-Process Results Build Status [![Build Status](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm.svg?branch=develop)](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm)
+Process Results Build Status [![Build Status](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm.svg?branch=master)](https://www.travis-ci.org/tjfoc/hyperledger-fabric-gm)
 
 Copyright Suzhou Tongji Fintech Research Institute 2017 All Rights Reserved. Licensed under the Apache License, Version 2.0 (the "License");
 
