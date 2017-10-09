@@ -16,15 +16,26 @@ limitations under the License.
 package sm4
 
 import (
+	"crypto/cipher"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"io/ioutil"
 	"os"
+	"strconv"
 )
 
+const BlockSize = 16
+
 type SM4Key []byte
+
+type KeySizeError int
+
+// Cipher is an instance of SM4 encryption.
+type Sm4Cipher struct {
+	subkeys []uint32
+}
 
 // sm4密钥参量
 var fk = [4]uint32{
@@ -183,16 +194,6 @@ func WriteKeytoMem(key SM4Key, pwd []byte) ([]byte, error) {
 	}
 }
 
-
-// func DerToKey(der []byte) ([]byte,error){
-// 	block := &pem.Block{
-// 		Type:  "SM4 KEY",
-// 		Bytes: der,
-// 	}
-// 	return pem.EncodeToMemory(block), nil
-// }
-
-
 func WriteKeyToPem(FileName string, key SM4Key, pwd []byte) (bool, error) {
 	var block *pem.Block
 
@@ -210,13 +211,39 @@ func WriteKeyToPem(FileName string, key SM4Key, pwd []byte) (bool, error) {
 		}
 	}
 	file, err := os.Create(FileName)
-	defer file.Close()
 	if err != nil {
 		return false, err
 	}
+	defer file.Close()
 	err = pem.Encode(file, block)
 	if err != nil {
 		return false, nil
 	}
 	return true, nil
+}
+
+func (k KeySizeError) Error() string {
+	return "SM4: invalid key size " + strconv.Itoa(int(k))
+}
+
+// NewCipher creates and returns a new cipher.Block.
+func NewCipher(key []byte) (cipher.Block, error) {
+	if len(key) != BlockSize {
+		return nil, KeySizeError(len(key))
+	}
+	c := new(Sm4Cipher)
+	c.subkeys = generateSubKeys(key)
+	return c, nil
+}
+
+func (c *Sm4Cipher) BlockSize() int {
+	return BlockSize
+}
+
+func (c *Sm4Cipher) Encrypt(dst, src []byte) {
+	cryptBlock(c.subkeys, dst, src, false)
+}
+
+func (c *Sm4Cipher) Decrypt(dst, src []byte) {
+	cryptBlock(c.subkeys, dst, src, true)
 }

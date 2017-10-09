@@ -1,6 +1,5 @@
 /*
-Copyright IBM Corp. 2016 All Rights Reserved.
-
+Copyright Suzhou Tongji Fintech Research Institute 2017 All Rights Reserved.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -123,6 +122,7 @@ func (sm3 *SM3) update(msg []byte, nblocks int) {
 
 func New() hash.Hash {
 	var sm3 SM3
+
 	sm3.Reset()
 	return &sm3
 }
@@ -152,6 +152,7 @@ func (sm3 *SM3) Reset() {
 	sm3.digest[7] = 0xb0fb0e4e
 
 	sm3.length = 0 // Reset numberic states
+	sm3.unhandleMsg = []byte{}
 }
 
 // Write, required by the hash.Hash interface.
@@ -199,6 +200,8 @@ func (sm3 *SM3) Sum(in []byte) []byte {
 
 func Sm3Sum(data []byte) []byte {
 	var sm3 SM3
+
 	sm3.Reset()
-	return sm3.Sum(data)
+	sm3.Write(data)
+	return sm3.Sum(nil)
 }
