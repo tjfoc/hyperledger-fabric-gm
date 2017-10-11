@@ -1,17 +1,7 @@
 /*
-Copyright IBM Corp. 2016 All Rights Reserved.
+Copyright IBM Corp. All Rights Reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-		 http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+SPDX-License-Identifier: Apache-2.0
 */
 
 package msp
@@ -19,7 +9,6 @@ package msp
 import (
 	"crypto"
 	"crypto/rand"
-	"crypto/x509"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
@@ -27,6 +16,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/bccsp"
+	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric/protos/msp"
 	"github.com/op/go-logging"
@@ -39,7 +29,7 @@ type identity struct {
 	id *IdentityIdentifier
 
 	// cert contains the x.509 certificate that signs the public key of this instance
-	cert *x509.Certificate
+	cert *sm2.Certificate
 
 	// this is the public key of this instance
 	pk bccsp.Key
@@ -48,16 +38,13 @@ type identity struct {
 	msp *bccspmsp
 }
 
-func newIdentity(id *IdentityIdentifier, cert *x509.Certificate, pk bccsp.Key, msp *bccspmsp) (Identity, error) {
-	mylogger.Info("entry newIdentity")
-	mspIdentityLogger.Debugf("Creating identity instance for ID %s", id)
+func newIdentity(id *IdentityIdentifier, cert *sm2.Certificate, pk bccsp.Key, msp *bccspmsp) (Identity, error) {
+	mspIdentityLogger.Infof("Creating identity Mspid %s", id.Mspid)
+	mspIdentityLogger.Infof("Creating identity instance for ID %s", certToPEM(cert))
 
-	//审查  Sanitize first the certificate 
-	mylogger.Info("begin sanitizeCert()")
+	// Sanitize first the certificate
 	cert, err := msp.sanitizeCert(cert)
-	mylogger.Infof("end sanitizeCert() cert is nil ? %t",cert == nil)
 	if err != nil {
-		mylogger.Errorf("sanitizeCert error:%s",err)
 		return nil, err
 	}
 	return &identity{id: id, cert: cert, pk: pk, msp: msp}, nil
@@ -108,12 +95,12 @@ func (id *identity) GetOrganizationalUnits() []*OUIdentifier {
 }
 
 // NewSerializedIdentity returns a serialized identity
-// having as content the passed mspID and x509 certificate in PEM format.
+// having as content the passed mspID and sm2 certificate in PEM format.
 // This method does not check the validity of certificate nor
 // any consistency of the mspID with it.
 func NewSerializedIdentity(mspID string, certPEM []byte) ([]byte, error) {
 	// We serialize identities by prepending the MSPID
-	// and appending the x509 cert in PEM format
+	// and appending the sm2 cert in PEM format
 	sId := &msp.SerializedIdentity{Mspid: mspID, IdBytes: certPEM}
 	raw, err := proto.Marshal(sId)
 	if err != nil {
@@ -144,6 +131,7 @@ func (id *identity) Verify(msg []byte, sig []byte) error {
 		mspIdentityLogger.Debugf("Verify: sig = %s", hex.Dump(sig))
 	}
 
+	mylogger.Infof("xxxx begin Verify id.pk is %T", id.pk)
 	valid, err := id.msp.bccsp.Verify(id.pk, sig, digest, nil)
 	if err != nil {
 		return fmt.Errorf("Could not determine the validity of the signature, err %s", err)
@@ -192,8 +180,16 @@ type signingidentity struct {
 	signer crypto.Signer
 }
 
-func newSigningIdentity(id *IdentityIdentifier, cert *x509.Certificate, pk bccsp.Key, signer crypto.Signer, msp *bccspmsp) (SigningIdentity, error) {
+func newSigningIdentity(id *IdentityIdentifier, cert *sm2.Certificate, pk bccsp.Key, signer crypto.Signer, msp *bccspmsp) (SigningIdentity, error) {
 	//mspIdentityLogger.Infof("Creating signing identity instance for ID %s", id)
+
+	//
+	mylogger.Infof("in newSigningIdentity parm pk %T, private ? %t", pk, pk.Private())
+	mylogger.Infof("id : %v", id)
+	kname := hex.EncodeToString(pk.SKI())
+	mylogger.Infof("pk (sk name) hash is :%s", kname)
+	//
+
 	mspId, err := newIdentity(id, cert, pk, msp)
 	if err != nil {
 		return nil, err

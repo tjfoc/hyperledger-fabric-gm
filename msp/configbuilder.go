@@ -31,7 +31,10 @@ import (
 	"github.com/hyperledger/fabric/bccsp/factory"
 	"github.com/hyperledger/fabric/protos/msp"
 	"gopkg.in/yaml.v2"
+	"github.com/hyperledger/fabric/common/flogging"
 )
+
+var mylogger = flogging.MustGetLogger("msp/xx test xx")
 
 type OrganizationalUnitIdentifiersConfiguration struct {
 	Certificate                  string `yaml:"Certificate,omitempty"`
@@ -128,18 +131,6 @@ func SetupBCCSPKeystoreConfig(bccspConfig *factory.FactoryOpts, keystoreDir stri
 			bccspConfig.SwOpts.FileKeystore = &factory.FileKeystoreOpts{KeyStorePath: keystoreDir}
 		}
 	}
-	if bccspConfig.ProviderName == "GM" {
-		if bccspConfig.SwOpts == nil {
-			bccspConfig.SwOpts = factory.GetDefaultOpts().SwOpts
-		}
-
-		// Only override the KeyStorePath if it was left empty
-		if bccspConfig.SwOpts.FileKeystore == nil ||
-			bccspConfig.SwOpts.FileKeystore.KeyStorePath == "" {
-			bccspConfig.SwOpts.Ephemeral = false
-			bccspConfig.SwOpts.FileKeystore = &factory.FileKeystoreOpts{KeyStorePath: keystoreDir}
-		}
-	}
 
 	return bccspConfig
 }
@@ -167,7 +158,6 @@ func GetLocalMspConfig(dir string, bccspConfig *factory.FactoryOpts, ID string) 
 
 	sigid := &msp.SigningIdentityInfo{PublicSigner: signcert[0], PrivateSigner: nil}
 
-	mylogger.Infof("&msp.SigningIdentityInfo{PublicSigner: signcert[0], PrivateSigner: nil}:%v", sigid)
 	return getMspConfig(dir, ID, sigid)
 }
 
@@ -185,9 +175,11 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 	tlscacertDir := filepath.Join(dir, tlscacerts)
 	tlsintermediatecertsDir := filepath.Join(dir, tlsintermediatecerts)
 
+
 	mylogger.Infof("cacert   :%s", cacertDir)
 	mylogger.Infof("admincert:%s", admincertDir)
 	mylogger.Infof("tlscert  :%s", tlscacertDir)
+
 	cacerts, err := getPemMaterialFromDir(cacertDir)
 	if err != nil || len(cacerts) == 0 {
 		return nil, fmt.Errorf("Could not load a valid ca certificate from directory %s, err %s", cacertDir, err)

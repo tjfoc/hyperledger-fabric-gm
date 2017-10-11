@@ -50,7 +50,7 @@ message Secret {
 }
 
 // GossipMessage defines the message sent in a gossip network
-message GossipMessage {
+ {
 
     // used mainly for testing, but will might be used in the future
     // for ensuring message delivery by acking

@@ -277,6 +277,7 @@ func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err e
 	if len(c.Raw) == 0 {
 		return nil, errNotParsed
 	}
+	//fmt.Printf("+++++++++++++++++++++++++++opts len = %d\n", len(opts.Roots.certs))
 	if opts.Intermediates != nil {
 		for _, intermediate := range opts.Intermediates.certs {
 			if len(intermediate.Raw) == 0 {
@@ -285,48 +286,55 @@ func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err e
 		}
 	}
 
+	//fmt.Printf("**********************************************************0\n")
 	// Use Windows's own verification and chain building.
 	if opts.Roots == nil && runtime.GOOS == "windows" {
 		return c.systemVerify(&opts)
 	}
-
+	//fmt.Printf("**********************************************************1\n")
 	if len(c.UnhandledCriticalExtensions) > 0 {
 		return nil, UnhandledCriticalExtension{}
 	}
-
+	//fmt.Printf("**********************************************************2\n")
 	if opts.Roots == nil {
 		opts.Roots = systemRootsPool()
 		if opts.Roots == nil {
 			return nil, SystemRootsError{systemRootsErr}
 		}
 	}
-
+	//fmt.Printf("**********************************************************3\n")
 	err = c.isValid(leafCertificate, nil, &opts)
 	if err != nil {
 		return
 	}
-
+	//fmt.Printf("**********************************************************4\n")
 	if len(opts.DNSName) > 0 {
 		err = c.VerifyHostname(opts.DNSName)
 		if err != nil {
 			return
 		}
 	}
-
+	//fmt.Printf("**********************************************************5\n")
 	var candidateChains [][]*Certificate
 	if opts.Roots.contains(c) {
 		candidateChains = append(candidateChains, []*Certificate{c})
 	} else {
+		//var tm []byte
+		//tm, _ = json.Marshal(opts.Roots.certs[0])
+		//ioutil.WriteFile("root.pem", tm, os.FileMode(0666))
+		//tm, _ = json.Marshal(c)
+		//ioutil.WriteFile("admin.pem", tm, os.FileMode(0666))
+		//fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++89\n")
 		if candidateChains, err = c.buildChains(make(map[int][][]*Certificate), []*Certificate{c}, &opts); err != nil {
 			return nil, err
 		}
 	}
-
+	//fmt.Printf("**********************************************************6\n")
 	keyUsages := opts.KeyUsages
 	if len(keyUsages) == 0 {
 		keyUsages = []ExtKeyUsage{ExtKeyUsageServerAuth}
 	}
-
+	//fmt.Printf("**********************************************************7\n")
 	// If any key usage is acceptable then we're done.
 	for _, usage := range keyUsages {
 		if usage == ExtKeyUsageAny {
@@ -334,13 +342,13 @@ func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err e
 			return
 		}
 	}
-
+	//fmt.Printf("**********************************************************8\n")
 	for _, candidate := range candidateChains {
 		if checkChainForKeyUsage(candidate, keyUsages) {
 			chains = append(chains, candidate)
 		}
 	}
-
+	//fmt.Printf("**********************************************************9\n")
 	if len(chains) == 0 {
 		err = CertificateInvalidError{c, IncompatibleUsage}
 	}

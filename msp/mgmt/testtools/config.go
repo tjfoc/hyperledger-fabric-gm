@@ -17,6 +17,8 @@ limitations under the License.
 package msptesttools
 
 import (
+	"fmt"
+
 	"github.com/hyperledger/fabric/common/util"
 	"github.com/hyperledger/fabric/core/config"
 	"github.com/hyperledger/fabric/msp"
@@ -35,11 +37,13 @@ func LoadMSPSetupForTesting() error {
 		return err
 	}
 
+	fmt.Printf("xxx in msp.mgmt.testtools call msp Setup(conf)")
 	err = mgmt.GetLocalMSP().Setup(conf)
 	if err != nil {
 		return err
 	}
 
+	fmt.Printf("xxx in msp.mgmt.testtools GetManagerForChain call msp Setup(conf)")
 	err = mgmt.GetManagerForChain(util.GetTestChainID()).Setup([]msp.MSP{mgmt.GetLocalMSP()})
 	if err != nil {
 		return err

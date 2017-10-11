@@ -102,6 +102,7 @@ func (bh *MSPConfigHandler) ProposeMSP(tx interface{}, mspConfig *mspprotos.MSPC
 	}
 
 	// set it up
+	fmt.Print("in common.config.msp.config.go call  mspInst Setup(mspConfig) \n")
 	err = mspInst.Setup(mspConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Setting up the MSP manager failed, err %s", err)
@@ -145,6 +146,7 @@ func (bh *MSPConfigHandler) PreCommit(tx interface{}) error {
 	}
 
 	pendingConfig.proposedMgr = msp.NewMSPManager()
+	fmt.Print("in common.config.msp call  pendingConfig.proposedMgr Setup(mspList) \n")
 	err := pendingConfig.proposedMgr.Setup(mspList)
 	return err
 }

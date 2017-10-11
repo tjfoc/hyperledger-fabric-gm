@@ -67,6 +67,8 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	verifiers := make(map[reflect.Type]Verifier)
 	verifiers[reflect.TypeOf(&gmsm2PrivateKey{})] = &gmsm2PrivateKeyVerifier{}  //sm2 私钥验签
 	verifiers[reflect.TypeOf(&gmsm2PublicKey{})] = &gmsm2PublicKeyKeyVerifier{} //sm2 公钥验签
+	verifiers[reflect.TypeOf(&ecdsaPrivateKey{})] = &ecdsaPrivateKeyVerifier{}
+	verifiers[reflect.TypeOf(&ecdsaPublicKey{})] = &ecdsaPublicKeyKeyVerifier{}
 
 	// Set the hashers
 	hashers := make(map[reflect.Type]Hasher)
@@ -102,6 +104,9 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	keyImporters[reflect.TypeOf(&bccsp.GMSM2PrivateKeyImportOpts{})] = &gmsm2PrivateKeyImportOptsKeyImporter{}
 	keyImporters[reflect.TypeOf(&bccsp.GMSM2PublicKeyImportOpts{})] = &gmsm2PublicKeyImportOptsKeyImporter{}
 	keyImporters[reflect.TypeOf(&bccsp.X509PublicKeyImportOpts{})] = &x509PublicKeyImportOptsKeyImporter{bccsp: impl}
+	keyImporters[reflect.TypeOf(&bccsp.ECDSAGoPublicKeyImportOpts{})] = &ecdsaGoPublicKeyImportOptsKeyImporter{}
+	keyImporters[reflect.TypeOf(&bccsp.ECDSAPrivateKeyImportOpts{})] = &ecdsaPrivateKeyImportOptsKeyImporter{}
+	keyImporters[reflect.TypeOf(&bccsp.ECDSAPKIXPublicKeyImportOpts{})] = &ecdsaPKIXPublicKeyImportOptsKeyImporter{}
 
 	impl.keyImporters = keyImporters
 	mylogger.Info("/*********ended new GM BCCSP*********/")
@@ -305,7 +310,7 @@ func (csp *impl) Verify(k bccsp.Key, signature, digest []byte, opts bccsp.Signer
 
 	verifier, found := csp.verifiers[reflect.TypeOf(k)]
 	if !found {
-		return false, errors.ErrorWithCallstack(errors.BCCSP, errors.NotFound, "Unsupported 'VerifyKey' provided [%v]", k)
+		return false, errors.ErrorWithCallstack(errors.BCCSP, errors.NotFound, "Unsupported 'VerifyKey' provided [%T]", k)
 	}
 
 	valid, err = verifier.Verify(k, signature, digest, opts)
