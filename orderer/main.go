@@ -65,10 +65,6 @@ func main() {
 	logger.Info("=====================================")
 	kingpin.Version("0.0.1")
 
-	if abab == 11 {
-
-	}
-
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 
 	// "start" command
