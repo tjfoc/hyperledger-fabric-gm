@@ -1,9 +1,10 @@
 package sarama
 
 import (
-	"crypto/tls"
 	"regexp"
 	"time"
+
+	tls "github.com/tjfoc/gmtls"
 
 	"github.com/rcrowley/go-metrics"
 )

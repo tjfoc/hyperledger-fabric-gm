@@ -22,9 +22,12 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric/gossip/api"
 	"github.com/hyperledger/fabric/gossip/common"
 )
+
+var mylogger = flogging.MustGetLogger("gossip/xx test xx")
 
 // NewGossipMessageComparator creates a MessageReplacingPolicy given a maximum number of blocks to hold
 func NewGossipMessageComparator(dataBlockStorageSize int) common.MessageReplacingPolicy {
@@ -539,7 +542,7 @@ func (m *SignedGossipMessage) String() string {
 			gMsg = fmt.Sprintf("%s %s", desc, gMsg)
 		}
 	}
-	return fmt.Sprintf("GossipMessage: %v, Envelope: %s", gMsg, env)
+	return fmt.Sprintf("GossipMessage: %v,xxx Envelope: %s", gMsg, env)
 }
 
 // Abs returns abs(a-b)

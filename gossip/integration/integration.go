@@ -17,7 +17,6 @@ limitations under the License.
 package integration
 
 import (
-	"crypto/tls"
 	"fmt"
 	"net"
 	"strconv"
@@ -29,6 +28,7 @@ import (
 	"github.com/hyperledger/fabric/gossip/identity"
 	"github.com/hyperledger/fabric/gossip/util"
 	"github.com/spf13/viper"
+	tls "github.com/tjfoc/gmtls"
 	"google.golang.org/grpc"
 )
 

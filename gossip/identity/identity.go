@@ -115,7 +115,7 @@ func (is *identityMapperImpl) Get(pkiID common.PKIidType) (api.PeerIdentityType,
 	defer is.RUnlock()
 	storedIdentity, exists := is.pkiID2Cert[string(pkiID)]
 	if !exists {
-		return nil, errors.New("PKIID wasn't found")
+		return nil, errors.New("PKIID wasn't found, the pkiID:" + string(pkiID))
 	}
 	return storedIdentity.fetchIdentity(), nil
 }

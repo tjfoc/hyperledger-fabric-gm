@@ -51,9 +51,9 @@ import (
 	pbutils "github.com/hyperledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	credentials "github.com/tjfoc/gmtls/gmcredentials"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 var endorserServer pb.EndorserServer

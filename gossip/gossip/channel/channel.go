@@ -518,7 +518,7 @@ func (gc *gossipChannel) handleStateInfSnapshot(m *proto.GossipMessage, sender c
 		si := stateInf.GetStateInfo()
 		orgID := gc.GetOrgOfPeer(si.PkiId)
 		if orgID == nil {
-			gc.logger.Debug("Channel", chanName, ": Couldn't find org identity of peer",
+			gc.logger.Debug("Channel", chanName, ": xxx Couldn't find org identity of peer",
 				string(si.PkiId), "message sent from", string(sender))
 			return
 		}

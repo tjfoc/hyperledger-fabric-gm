@@ -18,7 +18,6 @@ package gossip
 
 import (
 	"bytes"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"reflect"
@@ -38,6 +37,7 @@ import (
 	"github.com/hyperledger/fabric/gossip/util"
 	proto "github.com/hyperledger/fabric/protos/gossip"
 	"github.com/op/go-logging"
+	tls "github.com/tjfoc/gmtls"
 	"google.golang.org/grpc"
 )
 
@@ -82,7 +82,6 @@ type gossipServiceImpl struct {
 func NewGossipService(conf *Config, s *grpc.Server, secAdvisor api.SecurityAdvisor,
 	mcs api.MessageCryptoService, idMapper identity.Mapper, selfIdentity api.PeerIdentityType,
 	secureDialOpts api.PeerSecureDialOpts) Gossip {
-
 	var c comm.Comm
 	var err error
 
@@ -361,7 +360,7 @@ func (g *gossipServiceImpl) handleMessage(m proto.ReceivedMessage) {
 	defer g.logger.Debug("Exiting")
 
 	if !g.validateMsg(m) {
-		g.logger.Warning("Message", msg, "isn't valid")
+		g.logger.Warning("Message ##2", msg, "isn't valid")
 		return
 	}
 
@@ -433,6 +432,7 @@ func (g *gossipServiceImpl) validateMsg(msg proto.ReceivedMessage) bool {
 
 	if msg.GetGossipMessage().IsAliveMsg() {
 		if !g.disSecAdap.ValidateAliveMsg(msg.GetGossipMessage()) {
+			g.logger.Warning("xxx IsAliveMsg disSecAdap.ValidateAliveMsg  return false")
 			return false
 		}
 	}
@@ -922,7 +922,6 @@ func (sa *discoverySecurityAdapter) ValidateAliveMsg(m *proto.SignedGossipMessag
 		sa.logger.Debug("Don't have certificate for", am)
 		return false
 	}
-
 	return sa.validateAliveMsgSignature(m, identity)
 }
 
@@ -1137,6 +1136,7 @@ func (g *gossipServiceImpl) validateLeadershipMessage(msg *proto.SignedGossipMes
 }
 
 func (g *gossipServiceImpl) validateStateInfoMsg(msg *proto.SignedGossipMessage) error {
+	g.logger.Info("xxx entry validateStateInfoMsg  0x78 xxxxx")
 	verifier := func(identity []byte, signature, message []byte) error {
 		pkiID := g.idMapper.GetPKIidOfCert(api.PeerIdentityType(identity))
 		if pkiID == nil {
@@ -1148,6 +1148,7 @@ func (g *gossipServiceImpl) validateStateInfoMsg(msg *proto.SignedGossipMessage)
 	if err != nil {
 		return err
 	}
+	g.logger.Info("xxx exit validateStateInfoMsg  return msg.Verify xxxxx")
 	return msg.Verify(identity, verifier)
 }
 

@@ -17,11 +17,7 @@ limitations under the License.
 package comm
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -30,8 +26,10 @@ import (
 
 	"github.com/hyperledger/fabric/common/util"
 	gutil "github.com/hyperledger/fabric/gossip/util"
+	"github.com/tjfoc/gmsm/sm2"
+	tls "github.com/tjfoc/gmtls"
+	credentials "github.com/tjfoc/gmtls/gmcredentials"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
 )
 
@@ -50,7 +48,8 @@ func GenerateCertificatesOrPanic() tls.Certificate {
 
 	defer os.Remove(privKeyFile)
 	defer os.Remove(certKeyFile)
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	//privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	privateKey, err := sm2.GenerateKey()
 	if err != nil {
 		panic(err)
 	}
@@ -59,12 +58,18 @@ func GenerateCertificatesOrPanic() tls.Certificate {
 	if err != nil {
 		panic(err)
 	}
-	template := x509.Certificate{
-		KeyUsage:     x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+	// template := x509.Certificate{
+	// 	KeyUsage:     x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+	// 	SerialNumber: sn,
+	// 	ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+	// }
+	//rawBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
+	template := sm2.Certificate{
+		KeyUsage:     sm2.KeyUsageKeyEncipherment | sm2.KeyUsageDigitalSignature,
 		SerialNumber: sn,
-		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		ExtKeyUsage:  []sm2.ExtKeyUsage{sm2.ExtKeyUsageServerAuth},
 	}
-	rawBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
+	rawBytes, err := sm2.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
 	if err != nil {
 		panic(err)
 	}
@@ -72,11 +77,13 @@ func GenerateCertificatesOrPanic() tls.Certificate {
 	if err != nil {
 		panic(err)
 	}
-	privBytes, err := x509.MarshalECPrivateKey(privateKey)
+	//privBytes, err := x509.MarshalECPrivateKey(privateKey)
+	privBytes, err := sm2.MarshalSm2UnecryptedPrivateKey(privateKey)
 	if err != nil {
 		panic(err)
 	}
-	err = writeFile(privKeyFile, "EC PRIVATE KEY", privBytes)
+	//err = writeFile(privKeyFile, "EC PRIVATE KEY", privBytes)
+	err = writeFile(privKeyFile, "PRIVATE KEY", privBytes)
 	if err != nil {
 		panic(err)
 	}

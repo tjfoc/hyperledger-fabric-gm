@@ -7,8 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package comm
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/pem"
 	"fmt"
 	"os"
@@ -18,6 +16,9 @@ import (
 	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric/core/config"
 	"github.com/spf13/viper"
+	"github.com/tjfoc/gmsm/sm2"
+	tls "github.com/tjfoc/gmtls"
+	"github.com/tjfoc/gmtls/gmcredentials"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
@@ -83,7 +84,7 @@ func (cas *CASupport) GetDeliverServiceCredentials(channelID string) (credential
 
 	var creds credentials.TransportCredentials
 	var tlsConfig = &tls.Config{}
-	var certPool = x509.NewCertPool()
+	var certPool = sm2.NewCertPool()
 
 	rootCACerts, exists := cas.OrdererRootCAsByChain[channelID]
 	if !exists {
@@ -94,7 +95,7 @@ func (cas *CASupport) GetDeliverServiceCredentials(channelID string) (credential
 	for _, cert := range rootCACerts {
 		block, _ := pem.Decode(cert)
 		if block != nil {
-			cert, err := x509.ParseCertificate(block.Bytes)
+			cert, err := sm2.ParseCertificate(block.Bytes)
 			if err == nil {
 				certPool.AddCert(cert)
 			} else {
@@ -105,7 +106,7 @@ func (cas *CASupport) GetDeliverServiceCredentials(channelID string) (credential
 		}
 	}
 	tlsConfig.RootCAs = certPool
-	creds = credentials.NewTLS(tlsConfig)
+	creds = gmcredentials.NewTLS(tlsConfig)
 	return creds, nil
 }
 
@@ -116,13 +117,13 @@ func (cas *CASupport) GetPeerCredentials(tlsCert tls.Certificate) credentials.Tr
 	var tlsConfig = &tls.Config{
 		Certificates: []tls.Certificate{tlsCert},
 	}
-	var certPool = x509.NewCertPool()
+	var certPool = sm2.NewCertPool()
 	// loop through the orderer CAs
 	roots, _ := cas.GetServerRootCAs()
 	for _, root := range roots {
 		block, _ := pem.Decode(root)
 		if block != nil {
-			cert, err := x509.ParseCertificate(block.Bytes)
+			cert, err := sm2.ParseCertificate(block.Bytes)
 			if err == nil {
 				certPool.AddCert(cert)
 			} else {
@@ -133,7 +134,7 @@ func (cas *CASupport) GetPeerCredentials(tlsCert tls.Certificate) credentials.Tr
 		}
 	}
 	tlsConfig.RootCAs = certPool
-	creds = credentials.NewTLS(tlsConfig)
+	creds = gmcredentials.NewTLS(tlsConfig)
 	return creds
 }
 
@@ -204,12 +205,12 @@ func InitTLSForPeer() credentials.TransportCredentials {
 	var creds credentials.TransportCredentials
 	if config.GetPath("peer.tls.rootcert.file") != "" {
 		var err error
-		creds, err = credentials.NewClientTLSFromFile(config.GetPath("peer.tls.rootcert.file"), sn)
+		creds, err = gmcredentials.NewClientTLSFromFile(config.GetPath("peer.tls.rootcert.file"), sn)
 		if err != nil {
 			grpclog.Fatalf("Failed to create TLS credentials %v", err)
 		}
 	} else {
-		creds = credentials.NewClientTLSFromCert(nil, sn)
+		creds = gmcredentials.NewClientTLSFromCert(nil, sn)
 	}
 	return creds
 }

@@ -7,13 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package comm_test
 
 import (
-	"crypto/tls"
 	"testing"
-
-	"google.golang.org/grpc/credentials"
 
 	"github.com/hyperledger/fabric/core/comm"
 	"github.com/stretchr/testify/assert"
+	tls "github.com/tjfoc/gmtls"
+	"google.golang.org/grpc/credentials"
 )
 
 func TestCreds(t *testing.T) {

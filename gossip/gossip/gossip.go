@@ -19,13 +19,12 @@ package gossip
 import (
 	"time"
 
-	"crypto/tls"
-
 	"github.com/hyperledger/fabric/gossip/api"
 	"github.com/hyperledger/fabric/gossip/comm"
 	"github.com/hyperledger/fabric/gossip/common"
 	"github.com/hyperledger/fabric/gossip/discovery"
 	proto "github.com/hyperledger/fabric/protos/gossip"
+	tls "github.com/tjfoc/gmtls"
 )
 
 // Gossip is the interface of the gossip component

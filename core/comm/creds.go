@@ -7,10 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package comm
 
 import (
-	"crypto/tls"
 	"errors"
 	"net"
 
+	tls "github.com/tjfoc/gmtls"
+	"github.com/tjfoc/gmtls/gmcredentials"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/credentials"
 )
@@ -28,9 +29,10 @@ var (
 )
 
 // NewServerTransportCredentials returns a new initialized
-// grpc/credentials.TransportCredentials
+// grpc/gmcredentials.TransportCredentials
 func NewServerTransportCredentials(serverConfig *tls.Config) credentials.TransportCredentials {
-	// NOTE: unlike the default grpc/credentials implementation, we do not
+	// return gmcredentials.NewTLS(serverConfig)
+	// NOTE: unlike the default grpc/gmcredentials implementation, we do not
 	// clone the tls.Config which allows us to update it dynamically
 	serverConfig.NextProtos = alpnProtoStr
 	// override TLS version and ensure it is 1.2
@@ -39,7 +41,7 @@ func NewServerTransportCredentials(serverConfig *tls.Config) credentials.Transpo
 	return &serverCreds{serverConfig}
 }
 
-// serverCreds is an implementation of grpc/credentials.TransportCredentials.
+// serverCreds is an implementation of grpc/gmcredentials.TransportCredentials.
 type serverCreds struct {
 	serverConfig *tls.Config
 }
@@ -56,7 +58,7 @@ func (sc *serverCreds) ServerHandshake(rawConn net.Conn) (net.Conn, credentials.
 	if err := conn.Handshake(); err != nil {
 		return nil, nil, err
 	}
-	return conn, credentials.TLSInfo{conn.ConnectionState()}, nil
+	return conn, gmcredentials.TLSInfo{conn.ConnectionState()}, nil
 }
 
 // Info provides the ProtocolInfo of this TransportCredentials.
