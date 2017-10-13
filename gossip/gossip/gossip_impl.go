@@ -966,7 +966,6 @@ func (sa *discoverySecurityAdapter) validateAliveMsgSignature(m *proto.SignedGos
 		sa.logger.Warning("Failed verifying:", am, ":", err)
 		return false
 	}
-
 	return true
 }
 
