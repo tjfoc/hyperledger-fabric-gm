@@ -177,9 +177,11 @@ func (msp *bccspmsp) getSigningIdentityFromConf(sidInfo *m.SigningIdentityInfo) 
 		if err != nil {
 			return nil, fmt.Errorf("getIdentityFromBytes error: Failed to import EC private key, err %s", err)
 		}
+		mylogger.Infof("xxx new peerSigner bccsp: %T,KeyImport privKey:%T",msp.bccsp,privKey)
 	}
 
 	// get the peer signer
+	mylogger.Infof("xxx new peerSigner bccsp: %T, get privKey by puk.ski is :%T",msp.bccsp,privKey)
 	peerSigner, err := signer.New(msp.bccsp, privKey)
 	if err != nil {
 		return nil, fmt.Errorf("getIdentityFromBytes error: Failed initializing bccspCryptoSigner, err %s", err)
@@ -870,6 +872,7 @@ func (msp *bccspmsp) finalizeSetupCAs(config *m.FabricMSPConfig) error {
 }
 
 func (msp *bccspmsp) setupSigningIdentity(conf *m.FabricMSPConfig) error {
+	mylogger.Infof("xxxx entry setupSigningIdentity,conf.SigningIdentity==nil ? %v",conf.SigningIdentity==nil)
 	if conf.SigningIdentity != nil {
 		sid, err := msp.getSigningIdentityFromConf(conf.SigningIdentity)
 		if err != nil {

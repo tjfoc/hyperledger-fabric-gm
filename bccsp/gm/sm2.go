@@ -78,6 +78,7 @@ func UnmarshalSM2Signature(raw []byte) (*big.Int, *big.Int, error) {
 
 func signGMSM2(k *sm2.PrivateKey, digest []byte, opts bccsp.SignerOpts) (signature []byte, err error) {
 	signature, err = k.Sign(rand.Reader, digest, opts)
+	mylogger.Infof("xxxxxxxx=======  in sm2 signGMSM2 signature len :%d ",len(signature))
 	return
 }
 
@@ -92,6 +93,27 @@ func (s *gmsm2Signer) Sign(k bccsp.Key, digest []byte, opts bccsp.SignerOpts) (s
 	//return signECDSA(k.(*ecdsaPrivateKey).privKey, digest, opts)
 	return signGMSM2(k.(*gmsm2PrivateKey).privKey, digest, opts)
 }
+
+type ecdsaPrivateKeySigner struct{}
+
+func (s *ecdsaPrivateKeySigner) Sign(k bccsp.Key, digest []byte, opts bccsp.SignerOpts) (signature []byte, err error) {
+	puk := k.(*ecdsaPrivateKey).privKey.PublicKey
+	sm2pk := sm2.PublicKey{
+		Curve: puk.Curve,
+		X:     puk.X,
+		Y:     puk.Y,
+	}
+
+	privKey := k.(*ecdsaPrivateKey).privKey
+	sm2privKey := sm2.PrivateKey{
+		D:			privKey.D,
+		PublicKey:	sm2pk,
+	}
+	
+	return signGMSM2(&sm2privKey, digest, opts)
+}
+
+
 
 type gmsm2PrivateKeyVerifier struct{}
 

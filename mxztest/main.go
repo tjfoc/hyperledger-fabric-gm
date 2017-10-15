@@ -213,11 +213,11 @@ func main() {
 
 	//gm
 
-	key := testGetKey("a69850a9332f06b42bc8a113ebd074fd1895b473eba5e4266697df8aab0f8493")
+	//key := testGetKey("154886674be86e4149a42148f647c031bd872c9afac6a304ec3a6fc03517a23c")
 
 	//k := testGetKey("574d253e26c6c8c7b6f0fb18f561107083d414ba652aa4fad20d92f3d52a8260")
 
-	// testKeyImport()
+	key := testKeyImport()
 
 	// testEncrypt(k)
 
@@ -281,7 +281,7 @@ func testKeyImport() bccsp.Key {
 
 	//非对称密钥 与 AES KeyImport 都是 der
 
-	raw, err := ioutil.ReadFile("/var/tmp/ee663eea08b4a090ac2875c598265c3d6ad936a403324c2d75d9a1be50da5ed0_key")
+	raw, err := ioutil.ReadFile("/var/tmp/gmks/154886674be86e4149a42148f647c031bd872c9afac6a304ec3a6fc03517a23c_sk")
 
 	if err != nil {
 
@@ -304,8 +304,9 @@ func testKeyImport() bccsp.Key {
 	//opts := &bccsp.GMSM2PrivateKeyImportOpts{}
 
 	//opts := &bccsp.GMSM2PublicKeyImportOpts{}
-
-	opts := &bccsp.GMSM4ImportKeyOpts{}
+	
+	opts :=  &bccsp.ECDSAPrivateKeyImportOpts{Temporary: true}
+	//opts := &bccsp.GMSM4ImportKeyOpts{}
 
 	k, err := currentBCCSP.KeyImport(der, opts)
 

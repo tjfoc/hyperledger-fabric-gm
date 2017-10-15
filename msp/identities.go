@@ -185,7 +185,6 @@ func newSigningIdentity(id *IdentityIdentifier, cert *sm2.Certificate, pk bccsp.
 
 	//
 	mylogger.Infof("in newSigningIdentity parm pk %T, private ? %t", pk, pk.Private())
-	mylogger.Infof("id : %v", id)
 	kname := hex.EncodeToString(pk.SKI())
 	mylogger.Infof("pk (sk name) hash is :%s", kname)
 	//
@@ -220,7 +219,10 @@ func (id *signingidentity) Sign(msg []byte) ([]byte, error) {
 	mspIdentityLogger.Debugf("Sign: digest: %X \n", digest)
 
 	// Sign
-	return id.signer.Sign(rand.Reader, digest, nil)
+	signData,err := id.signer.Sign(rand.Reader, digest, nil)
+	mylogger.Infof("xxxxx ==== Sign return len :%d , err:%s", len(signData),err)
+	//return id.signer.Sign(rand.Reader, digest, nil)
+	return signData,err
 }
 
 func (id *signingidentity) GetPublicVersion() Identity {
