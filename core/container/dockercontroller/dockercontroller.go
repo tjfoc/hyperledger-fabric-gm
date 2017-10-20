@@ -180,6 +180,7 @@ func (vm *DockerVM) deployImage(client dockerClient, ccid ccintf.CCID,
 	}
 
 	if err := client.BuildImage(opts); err != nil {
+		dockerLogger.Errorf("Error building images opts: %v", opts)
 		dockerLogger.Errorf("Error building images: %s", err)
 		dockerLogger.Errorf("Image Output:\n********************\n%s\n********************", outputbuf.String())
 		return err
@@ -212,6 +213,10 @@ func (vm *DockerVM) Deploy(ctxt context.Context, ccid ccintf.CCID,
 //Start starts a container using a previously created docker image
 func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 	args []string, env []string, builder container.BuildSpecFactory, prelaunchFunc container.PrelaunchFunc) error {
+
+	dockerLogger.Warning("====== entry Start ====")
+	defer dockerLogger.Warning("====== exit Start ====")
+
 	imageID, err := vm.GetVMName(ccid, formatImageName)
 	if err != nil {
 		return err
@@ -234,26 +239,40 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 	dockerLogger.Debugf("Cleanup container %s", containerID)
 	vm.stopInternal(ctxt, client, containerID, 0, false, false)
 
-	dockerLogger.Debugf("Start container %s", containerID)
+	dockerLogger.Debugf("Start container imageID %s", imageID)
+	dockerLogger.Debugf("Start container containerID %s", containerID)
+	dockerLogger.Debugf("xx ctxt:%v", ctxt)
+	dockerLogger.Debugf("xx client:%v", client)
+	dockerLogger.Debugf("xx imageID:%s", imageID)
+	dockerLogger.Debugf("xx containerID:%s", containerID)
+	dockerLogger.Debugf("xx args:%v", args)
+	dockerLogger.Debugf("xx env:%v", env)
+	dockerLogger.Debugf("xx attachStdout:%v", attachStdout)
 	err = vm.createContainer(ctxt, client, imageID, containerID, args, env, attachStdout)
+	dockerLogger.Debugf("xx end createContainer,err:%s", err)
+
 	if err != nil {
+		dockerLogger.Debugf("xx image not found")
 		//if image not found try to create image and retry
 		if err == docker.ErrNoSuchImage {
+			dockerLogger.Debugf("xx err == docker.ErrNoSuchImage")
 			if builder != nil {
 				dockerLogger.Debugf("start-could not find image <%s> (container id <%s>), because of <%s>..."+
 					"attempt to recreate image", imageID, containerID, err)
-
 				reader, err1 := builder()
 				if err1 != nil {
 					dockerLogger.Errorf("Error creating image builder for image <%s> (container id <%s>), "+
 						"because of <%s>", imageID, containerID, err1)
 				}
 
+				dockerLogger.Debug("xxxx  vm.deployImage xxxxxxxxx")
 				if err1 = vm.deployImage(client, ccid, args, env, reader); err1 != nil {
 					return err1
 				}
 
 				dockerLogger.Debug("start-recreated image successfully")
+				dockerLogger.Debug("xxx  vm.createContainer xxxxxxxx")
+
 				if err1 = vm.createContainer(ctxt, client, imageID, containerID, args, env, attachStdout); err1 != nil {
 					dockerLogger.Errorf("start-could not recreate container post recreate image: %s", err1)
 					return err1
@@ -267,6 +286,9 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 			return err
 		}
 	}
+
+	dockerLogger.Error("xxxxxxxxxxxxx  createContainer finished sleep 20")
+	time.Sleep(20 * time.Second)
 
 	if attachStdout {
 		// Launch a few go-threads to manage output streams from the container.
@@ -299,6 +321,7 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 			// Block here until the attachment completes or we timeout
 			select {
 			case <-attached:
+				dockerLogger.Debugf("xxx attached ok container:%s,imageid:%s", containerID, imageID)
 				// successful attach
 			case <-time.After(10 * time.Second):
 				dockerLogger.Errorf("Timeout while attaching to IO channel in container %s", containerID)
@@ -339,10 +362,15 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 	}
 
 	if prelaunchFunc != nil {
+		dockerLogger.Debugf("xx prelaunchFunc")
 		if err = prelaunchFunc(); err != nil {
 			return err
 		}
 	}
+
+	dockerLogger.Errorf("before StartContainer sleep 30s,containerID:%s", containerID)
+	time.Sleep(30 * time.Second)
+	dockerLogger.Error("StartContainer")
 
 	// start container with HostConfig was deprecated since v1.10 and removed in v1.2
 	err = client.StartContainer(containerID, nil)
@@ -352,6 +380,10 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 	}
 
 	dockerLogger.Debugf("Started container %s", containerID)
+
+	dockerLogger.Error("end Started container finished sleep 30s")
+	time.Sleep(30 * time.Second)
+
 	return nil
 }
 

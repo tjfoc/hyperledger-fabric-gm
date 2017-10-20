@@ -219,10 +219,10 @@ func (id *signingidentity) Sign(msg []byte) ([]byte, error) {
 	mspIdentityLogger.Debugf("Sign: digest: %X \n", digest)
 
 	// Sign
-	signData,err := id.signer.Sign(rand.Reader, digest, nil)
-	mylogger.Infof("xxxxx ==== Sign return len :%d , err:%s", len(signData),err)
+	signData, err := id.signer.Sign(rand.Reader, digest, nil)
+	mylogger.Infof("xxxxx ==== Sign return len :%d , err [%s]", len(signData), err)
 	//return id.signer.Sign(rand.Reader, digest, nil)
-	return signData,err
+	return signData, err
 }
 
 func (id *signingidentity) GetPublicVersion() Identity {

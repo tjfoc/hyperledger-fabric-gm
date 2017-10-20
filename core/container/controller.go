@@ -94,6 +94,7 @@ func (vmc *VMController) lockContainer(id string) {
 }
 
 func (vmc *VMController) unlockContainer(id string) {
+	vmLogger.Warning("xxxxxxxxxx entry unlockContainer")
 	vmcontroller.Lock()
 	if refLck, ok := vmcontroller.containerLocks[id]; ok {
 		if refLck.refCount <= 0 {
@@ -103,10 +104,12 @@ func (vmc *VMController) unlockContainer(id string) {
 		if refLck.refCount--; refLck.refCount == 0 {
 			vmLogger.Debugf("container lock deleted(%s)", id)
 			delete(vmcontroller.containerLocks, id)
+			vmLogger.Info("xxx deleted")
 		}
 	} else {
 		vmLogger.Debugf("no lock to unlock(%s)!!", id)
 	}
+	vmLogger.Info("exit  xxxx unlockContainer")
 	vmcontroller.Unlock()
 }
 
@@ -234,6 +237,11 @@ func (di DestroyImageReq) getCCID() ccintf.CCID {
 //For instance docker clients api's such as BuildImage are not cancelable.
 //In all cases VMCProcess will wait for the called go routine to return
 func VMCProcess(ctxt context.Context, vmtype string, req VMCReqIntf) (interface{}, error) {
+	vmLogger.Warning("====== entry  VMCProcess")
+	defer vmLogger.Warning("====== exit  VMCProcess")
+	vmLogger.Infof("=== vmtype : %s", vmtype)
+	vmLogger.Infof("==== req :  %T", req)
+	vmLogger.Infof("==== ctxt :  %v", ctxt)
 	v := vmcontroller.newVM(vmtype)
 
 	if v == nil {
@@ -246,6 +254,7 @@ func VMCProcess(ctxt context.Context, vmtype string, req VMCReqIntf) (interface{
 		defer close(c)
 
 		id, err := v.GetVMName(req.getCCID(), nil)
+		vmLogger.Infof("xxx GetVMName id : %s,err:[%s]", id, err)
 		if err != nil {
 			resp = VMCResp{Err: err}
 			return
@@ -255,10 +264,13 @@ func VMCProcess(ctxt context.Context, vmtype string, req VMCReqIntf) (interface{
 		vmcontroller.unlockContainer(id)
 	}()
 
+	vmLogger.Infof("====== wait select case")
 	select {
 	case <-c:
+		vmLogger.Infof("== case  <-c")
 		return resp, nil
 	case <-ctxt.Done():
+		vmLogger.Infof("== case <-ctxt.Done()")
 		//TODO cancel req.do ... (needed) ?
 		<-c
 		return nil, ctxt.Err()

@@ -412,6 +412,8 @@ func (chaincodeSupport *ChaincodeSupport) getArgsAndEnv(cccid *ccprovider.CCCont
 //the targz to create the image if not found
 func (chaincodeSupport *ChaincodeSupport) launchAndWaitForRegister(ctxt context.Context, cccid *ccprovider.CCContext, cds *pb.ChaincodeDeploymentSpec, cLang pb.ChaincodeSpec_Type, builder api.BuildSpecFactory) error {
 	canName := cccid.GetCanonicalName()
+	chaincodeLogger.Warningf("xxxxxx xxxxxxxx entry launchAndWaitForRegister,canName:%s", canName)
+	defer chaincodeLogger.Warningf("xxxxxx xxxxxxxx exit launchAndWaitForRegister")
 	if canName == "" {
 		return fmt.Errorf("chaincode name not set")
 	}
@@ -445,9 +447,11 @@ func (chaincodeSupport *ChaincodeSupport) launchAndWaitForRegister(ctxt context.
 	//unset launch flag as we get out of this function. If launch was not
 	//successful (handler was not created), next invoke will try again.
 	defer func() {
+		chaincodeLogger.Info("xxx in defer func()")
 		chaincodeSupport.runningChaincodes.Lock()
 		defer chaincodeSupport.runningChaincodes.Unlock()
 
+		chaincodeLogger.Info("xxx call delete()")
 		delete(chaincodeSupport.runningChaincodes.launchStarted, canName)
 		chaincodeLogger.Debugf("chaincode %s launch seq completed", canName)
 	}()
@@ -491,14 +495,16 @@ func (chaincodeSupport *ChaincodeSupport) launchAndWaitForRegister(ctxt context.
 		chaincodeSupport.runningChaincodes.Unlock()
 		return err
 	}
-
+	chaincodeLogger.Warning("xxxx wait for peer starting...")
 	//wait for REGISTER state
 	select {
 	case ok := <-notfy:
+		chaincodeLogger.Warningf("xxx in case . ok : %v", ok)
 		if !ok {
 			err = fmt.Errorf("registration failed for %s(networkid:%s,peerid:%s,tx:%s)", canName, chaincodeSupport.peerNetworkID, chaincodeSupport.peerID, cccid.TxID)
 		}
 	case <-time.After(chaincodeSupport.ccStartupTimeout):
+		chaincodeLogger.Warningf("xxx in case . Timeout")
 		err = fmt.Errorf("Timeout expired while starting chaincode %s(networkid:%s,peerid:%s,tx:%s)", canName, chaincodeSupport.peerNetworkID, chaincodeSupport.peerID, cccid.TxID)
 	}
 	if err != nil {
@@ -548,6 +554,8 @@ func (chaincodeSupport *ChaincodeSupport) Stop(context context.Context, cccid *c
 
 // Launch will launch the chaincode if not running (if running return nil) and will wait for handler of the chaincode to get into FSM ready state.
 func (chaincodeSupport *ChaincodeSupport) Launch(context context.Context, cccid *ccprovider.CCContext, spec interface{}) (*pb.ChaincodeID, *pb.ChaincodeInput, error) {
+	chaincodeLogger.Warning("===== entry Launch ====")
+	defer chaincodeLogger.Warning("===== exit Launch ====")
 	//build the chaincode
 	var cID *pb.ChaincodeID
 	var cMsg *pb.ChaincodeInput
@@ -574,6 +582,7 @@ func (chaincodeSupport *ChaincodeSupport) Launch(context context.Context, cccid 
 	var err error
 	//if its in the map, there must be a connected stream...nothing to do
 	if chrte, ok = chaincodeSupport.chaincodeHasBeenLaunched(canName); ok {
+		chaincodeLogger.Warning("=====  chaincodeHasBeenLaunched ====")
 		if !chrte.handler.registered {
 			chaincodeSupport.runningChaincodes.Unlock()
 			chaincodeLogger.Debugf("premature execution - chaincode (%s) launched and waiting for registration", canName)
@@ -593,6 +602,7 @@ func (chaincodeSupport *ChaincodeSupport) Launch(context context.Context, cccid 
 		//strictly not necessary as the actual launch process will catch this
 		//(in launchAndWaitForRegister), just a bit of optimization for thundering
 		//herds
+		chaincodeLogger.Warning("=====  launchStarted ====")
 		if chaincodeSupport.launchStarted(canName) {
 			chaincodeSupport.runningChaincodes.Unlock()
 			err = fmt.Errorf("premature execution - chaincode (%s) is being launched", canName)
@@ -600,8 +610,10 @@ func (chaincodeSupport *ChaincodeSupport) Launch(context context.Context, cccid 
 		}
 	}
 	chaincodeSupport.runningChaincodes.Unlock()
+	chaincodeLogger.Warning("=====  chaincodeSupport.runningChaincodes.Unlock()  ====")
 
 	if cds == nil {
+		chaincodeLogger.Warning("=====  cds is nil  ====")
 		if cccid.Syscc {
 			return cID, cMsg, fmt.Errorf("a syscc should be running (it cannot be launched) %s", canName)
 		}
@@ -644,6 +656,7 @@ func (chaincodeSupport *ChaincodeSupport) Launch(context context.Context, cccid 
 		//But for now, if we are invoking we have gone through the LSCC path above. If  instantiating
 		//or upgrading currently we send a CDS with nil CodePackage. In this case the codepath
 		//in the endorser has gone through LSCC validation. Just get the code from the FS.
+		chaincodeLogger.Warning("===== launch container is a System container or not in dev mode ====")
 		if cds.CodePackage == nil {
 			//no code bytes for these situations
 			if !(chaincodeSupport.userRunsCC || cds.ExecEnv == pb.ChaincodeDeploymentSpec_SYSTEM) {
@@ -702,6 +715,7 @@ func (chaincodeSupport *ChaincodeSupport) HandleChaincodeStream(ctxt context.Con
 
 // Register the bidi stream entry point called by chaincode to register with the Peer.
 func (chaincodeSupport *ChaincodeSupport) Register(stream pb.ChaincodeSupport_RegisterServer) error {
+	chaincodeLogger.Info(" //// Register --------------")
 	return chaincodeSupport.HandleChaincodeStream(stream.Context(), stream)
 }
 
