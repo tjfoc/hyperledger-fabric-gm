@@ -42,15 +42,11 @@ import (
 )
 
 var exitCode = 0
-var mylogger = flogging.MustGetLogger("xx configtx xx")
 var logger = flogging.MustGetLogger("common/configtx/tool")
 
 func doOutputBlock(config *genesisconfig.Profile, channelID string, outputBlock string) error {
 
-	logger.Info("xxx in doOutputBlock")
-
 	pgen := provisional.New(config)
-	logger.Info("xxx end new")
 
 	logger.Info("Generating genesis block")
 	if config.Orderer == nil {
@@ -65,7 +61,6 @@ func doOutputBlock(config *genesisconfig.Profile, channelID string, outputBlock 
 	if err != nil {
 		return fmt.Errorf("Error writing genesis block: %s", err)
 	}
-	logger.Info("xxx end doOutputBlock")
 	return nil
 }
 
@@ -80,7 +75,7 @@ func doOutputChannelCreateTx(conf *genesisconfig.Profile, channelID string, outp
 		return fmt.Errorf("Cannot define a new channel with no Consortium value")
 	}
 
-	// XXX we ignore the non-application org names here, once the tool supports configuration updates
+	// we ignore the non-application org names here, once the tool supports configuration updates
 	// we should come up with a cleaner way to handle this, but leaving as is for the moment to not break
 	// backwards compatibility
 	var orgNames []string
@@ -343,13 +338,6 @@ func doInspectChannelCreateTx(inspectChannelCreateTx string) error {
 }
 
 func main() {
-
-	mylogger.Info("============================================================")
-	mylogger.Info("============================================================")
-	mylogger.Info("====================in configtxgen  main====================")
-	mylogger.Info("============================================================")
-	mylogger.Info("============================================================")
-
 	var outputBlock, outputChannelCreateTx, profile, channelID, inspectBlock, inspectChannelCreateTx, outputAnchorPeersUpdate, asOrg string
 
 	flag.StringVar(&outputBlock, "outputBlock", "", "The path to write the genesis block to (if set)")
@@ -387,43 +375,32 @@ func main() {
 
 	logger.Info("Loading configuration")
 	factory.InitFactories(nil)
-	mylogger.Infof("xxx InitFactories over xxx,profile: %s", profile)
 	config := genesisconfig.Load(profile)
-	mylogger.Infof("xxx genesisconfig.Load(profile) over,return config:[%+v]", config)
 
-	mylogger.Infof("xxx outputBlock:[%s]", outputBlock)
 	if outputBlock != "" {
-		logger.Infof("xxx begin doOutputBlock, channelID:[%s]", channelID)
 		if err := doOutputBlock(config, channelID, outputBlock); err != nil {
-			mylogger.Fatalf("Error on outputBlock: %s", err)
-		} else {
-			mylogger.Info("xxx end doOutputBlock ok.")
+			logger.Fatalf("Error on outputBlock: %s", err)
 		}
-		mylogger.Info("xxx end doOutputBlock")
 	}
 
-	mylogger.Infof("xxx outputChannelCreateTx:[%s]", outputChannelCreateTx)
 	if outputChannelCreateTx != "" {
 		if err := doOutputChannelCreateTx(config, channelID, outputChannelCreateTx); err != nil {
 			logger.Fatalf("Error on outputChannelCreateTx: %s", err)
 		}
 	}
 
-	mylogger.Infof("xxx inspectBlock:[%s]", inspectBlock)
 	if inspectBlock != "" {
 		if err := doInspectBlock(inspectBlock); err != nil {
 			logger.Fatalf("Error on inspectBlock: %s", err)
 		}
 	}
 
-	mylogger.Infof("xxx inspectChannelCreateTx:[%s]", inspectChannelCreateTx)
 	if inspectChannelCreateTx != "" {
 		if err := doInspectChannelCreateTx(inspectChannelCreateTx); err != nil {
 			logger.Fatalf("Error on inspectChannelCreateTx: %s", err)
 		}
 	}
 
-	mylogger.Infof("xxx outputAnchorPeersUpdate:[%s]", outputAnchorPeersUpdate)
 	if outputAnchorPeersUpdate != "" {
 		if err := doOutputAnchorPeersUpdate(config, channelID, outputAnchorPeersUpdate, asOrg); err != nil {
 			logger.Fatalf("Error on inspectChannelCreateTx: %s", err)

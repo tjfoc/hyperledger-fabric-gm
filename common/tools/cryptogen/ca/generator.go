@@ -216,7 +216,6 @@ func genCertificateGMSM2(baseDir, name string, template, parent *sm2.Certificate
 	// if err != nil {
 	// 	return nil, err
 	// }
-	// fmt.Println("xxx end Encode")
 	//x509Cert, err := sm2.ReadCertificateFromPem(fileName)
 
 	x509Cert, err := sm2.ReadCertificateFromMem(certBytes)

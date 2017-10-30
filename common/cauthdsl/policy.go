@@ -49,7 +49,6 @@ func (pr *provider) NewPolicy(data []byte) (policies.Policy, proto.Message, erro
 		return nil, nil, fmt.Errorf("This evaluator only understands messages of version 0, but version was %d", sigPolicy.Version)
 	}
 
-	cauthdslLogger.Info("xxxxx in policy.go NewPolicy begin call compile")
 	compiled, err := compile(sigPolicy.Rule, sigPolicy.Identities, pr.deserializer)
 	if err != nil {
 		return nil, nil, err
@@ -67,7 +66,6 @@ type policy struct {
 
 // Evaluate takes a set of SignedData and evaluates whether this set of signatures satisfies the policy
 func (p *policy) Evaluate(signatureSet []*cb.SignedData) error {
-	cauthdslLogger.Info("xxxxx in policy.go Evaluate begin call p.evaluator")
 	if p == nil {
 		return fmt.Errorf("No such policy")
 	}
