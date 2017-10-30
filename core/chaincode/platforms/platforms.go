@@ -92,7 +92,7 @@ func getPeerTLSCert() ([]byte, error) {
 	if _, err := os.Stat(path); err != nil {
 		return nil, err
 	}
-	logger.Warningf("xxx peer tls cert path:%s", path)
+	logger.Debugf("peer tls cert path:%s", path)
 	// FIXME: FAB-2037 - ensure we sanely resolve relative paths specified in the yaml
 	return ioutil.ReadFile(path)
 }

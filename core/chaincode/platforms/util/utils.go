@@ -156,9 +156,7 @@ func DockerBuild(opts DockerBuildOptions) error {
 	opts.Image = "mygmfabric-ccenv:x86_64-1.0.2"
 	logger.Errorf("Attempting build with image %s", opts.Image)
 
-	//logger.Infof("xxxx Attempting build with image %s", opts.Image)
 	//opts.Image = "hyperledger/fabric-ccenv:x86_64-1.1.0"
-	//logger.Infof("xxxx set opts.Image %s", opts.Image)
 
 	//-----------------------------------------------------------------------------------
 	// Ensure the image exists locally, or pull it from a registry if it doesn't

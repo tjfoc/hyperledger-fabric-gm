@@ -393,9 +393,7 @@ func (handler *Handler) processStream() error {
 
 // HandleChaincodeStream Main loop for handling the associated Chaincode stream
 func HandleChaincodeStream(chaincodeSupport *ChaincodeSupport, ctxt context.Context, stream ccintf.ChaincodeStream) error {
-	chaincodeLogger.Warning("======== entry HandleChaincodeStream")
 	deadline, ok := ctxt.Deadline()
-	chaincodeLogger.Info("======== end ctxt.Deadline()")
 	chaincodeLogger.Debugf("Current context deadline = %s, ok = %v", deadline, ok)
 	handler := newChaincodeSupportHandler(chaincodeSupport, stream)
 	return handler.processStream()
