@@ -28,12 +28,9 @@ import (
 
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/utils"
-	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/tjfoc/gmsm/sm2"
 	"github.com/tjfoc/gmsm/sm4"
 )
-
-var mylogger = flogging.MustGetLogger("xx bccsp_gm xx")
 
 // NewFileBasedKeyStore instantiated a file-based key store at a given position.
 // The key store can be encrypted if a non-empty password is specifiec.
@@ -118,7 +115,6 @@ func (ks *fileBasedKeyStore) GetKey(ski []byte) (k bccsp.Key, err error) {
 	}
 
 	suffix := ks.getSuffix(hex.EncodeToString(ski))
-	mylogger.Infof("ks.getSuffix return path: %s , suffix:%s", hex.EncodeToString(ski), suffix)
 
 	switch suffix {
 	case "key":
@@ -236,7 +232,6 @@ func (ks *fileBasedKeyStore) searchKeystoreForSKI(ski []byte) (k bccsp.Key, err 
 }
 
 func (ks *fileBasedKeyStore) getSuffix(alias string) string {
-	mylogger.Infof("before getSuffix from dir : %s", ks.path)
 	files, _ := ioutil.ReadDir(ks.path)
 	for _, f := range files {
 		if strings.HasPrefix(f.Name(), alias) {
@@ -334,7 +329,6 @@ func (ks *fileBasedKeyStore) loadPrivateKey(alias string) (interface{}, error) {
 
 func (ks *fileBasedKeyStore) loadPublicKey(alias string) (interface{}, error) {
 	path := ks.getPathForAlias(alias, "pk")
-	mylogger.Infof("loadPublicKey : %s", path)
 	logger.Debugf("Loading public key [%s] at [%s]...", alias, path)
 
 	raw, err := ioutil.ReadFile(path)

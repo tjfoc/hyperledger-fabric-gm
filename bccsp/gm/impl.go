@@ -35,9 +35,6 @@ var (
 // New 实例化 返回支持国密算法的 bccsp.BCCSP
 func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.BCCSP, error) {
 
-	mylogger.Info("/************************************/")
-	mylogger.Info("/*********start new GM BCCSP*********/")
-
 	// Init config
 	conf := &config{}
 	err := conf.setSecurityLevel(securityLevel, hashFamily)
@@ -109,8 +106,6 @@ func New(securityLevel int, hashFamily string, keyStore bccsp.KeyStore) (bccsp.B
 	keyImporters[reflect.TypeOf(&bccsp.ECDSAPKIXPublicKeyImportOpts{})] = &ecdsaPKIXPublicKeyImportOptsKeyImporter{}
 
 	impl.keyImporters = keyImporters
-	mylogger.Info("/*********ended new GM BCCSP*********/")
-	mylogger.Info("/************************************/")
 	return impl, nil
 }
 

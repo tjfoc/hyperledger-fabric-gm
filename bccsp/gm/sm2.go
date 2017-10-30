@@ -78,7 +78,6 @@ func UnmarshalSM2Signature(raw []byte) (*big.Int, *big.Int, error) {
 
 func signGMSM2(k *sm2.PrivateKey, digest []byte, opts bccsp.SignerOpts) (signature []byte, err error) {
 	signature, err = k.Sign(rand.Reader, digest, opts)
-	//mylogger.Infof("xxxxxxxx=======  in sm2 signGMSM2 signature len :%d ",len(signature))
 	return
 }
 
@@ -90,7 +89,6 @@ func verifyGMSM2(k *sm2.PublicKey, signature, digest []byte, opts bccsp.SignerOp
 type gmsm2Signer struct{}
 
 func (s *gmsm2Signer) Sign(k bccsp.Key, digest []byte, opts bccsp.SignerOpts) (signature []byte, err error) {
-	//return signECDSA(k.(*ecdsaPrivateKey).privKey, digest, opts)
 	return signGMSM2(k.(*gmsm2PrivateKey).privKey, digest, opts)
 }
 
@@ -116,14 +114,12 @@ func (s *ecdsaPrivateKeySigner) Sign(k bccsp.Key, digest []byte, opts bccsp.Sign
 type gmsm2PrivateKeyVerifier struct{}
 
 func (v *gmsm2PrivateKeyVerifier) Verify(k bccsp.Key, signature, digest []byte, opts bccsp.SignerOpts) (valid bool, err error) {
-	// return verifyECDSA(&(k.(*ecdsaPrivateKey).privKey.PublicKey), signature, digest, opts)
 	return verifyGMSM2(&(k.(*gmsm2PrivateKey).privKey.PublicKey), signature, digest, opts)
 }
 
 type gmsm2PublicKeyKeyVerifier struct{}
 
 func (v *gmsm2PublicKeyKeyVerifier) Verify(k bccsp.Key, signature, digest []byte, opts bccsp.SignerOpts) (valid bool, err error) {
-	// return verifyECDSA(k.(*ecdsaPublicKey).pubKey, signature, digest, opts)
 	return verifyGMSM2(k.(*gmsm2PublicKey).pubKey, signature, digest, opts)
 }
 
@@ -170,7 +166,6 @@ func SignatureToLowS(k *ecdsa.PublicKey, signature []byte) ([]byte, error) {
 
 func ToLowS(k *ecdsa.PublicKey, s *big.Int) (*big.Int, bool, error) {
 	lowS, err := IsLowS(k, s)
-	//fmt.Printf("lowS:%t\n", lowS)
 	if err != nil {
 		return nil, false, err
 	}
