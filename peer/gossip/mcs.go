@@ -257,8 +257,6 @@ func (s *mspMessageCryptoService) VerifyByChannel(chainID common.ChainID, peerId
 
 func (s *mspMessageCryptoService) getValidatedIdentity(peerIdentity api.PeerIdentityType) (msp.Identity, common.ChainID, error) {
 
-	mcsLogger.Info("////////////////////// in getValidatedIdentity  ")
-
 	// Validate arguments
 	if len(peerIdentity) == 0 {
 		return nil, nil, errors.New("Invalid Peer Identity. It must be different from nil.")
@@ -271,9 +269,7 @@ func (s *mspMessageCryptoService) getValidatedIdentity(peerIdentity api.PeerIden
 	// If the peerIdentity is in the same organization of this node then
 	// the local MSP is required to take the final decision on the validity
 	// of the signature.
-	mcsLogger.Info("////////////////////// begin s.deserializer.GetLocalDeserializer().DeserializeIdentity([]byte(peerIdentity))  ")
 	identity, err := s.deserializer.GetLocalDeserializer().DeserializeIdentity([]byte(peerIdentity))
-	mcsLogger.Infof("//////////////////// end s.deserializer.GetLocalDeserializer() ,err :%s", err)
 	if err == nil {
 		// No error means that the local MSP successfully deserialized the identity.
 		// We now check additional properties.

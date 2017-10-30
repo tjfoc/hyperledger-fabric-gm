@@ -39,8 +39,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-var mylogger = flogging.MustGetLogger("xxx peer.common xx")
-
 // UndefinedParamValue defines what undefined parameters in the command line will initialise to
 const UndefinedParamValue = ""
 
@@ -105,8 +103,6 @@ func InitCrypto(mspMgrConfigDir string, localMSPID string) error {
 
 	// bccspConfig = factory.GetDefaultOpts()
 	// if bccspConfig != nil {
-	// 	mylogger.Info("bccspConfig ProviderName :", bccspConfig.ProviderName)
-	// 	mylogger.Infof("set ks:", bccspConfig.SwOpts.FileKeystore.KeyStorePath)
 	// }
 	err = mspmgmt.LoadLocalMsp(mspMgrConfigDir, bccspConfig, localMSPID)
 	if err != nil {
