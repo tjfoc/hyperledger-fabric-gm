@@ -41,8 +41,7 @@ type identity struct {
 }
 
 func newIdentity(id *IdentityIdentifier, cert *sm2.Certificate, pk bccsp.Key, msp *bccspmsp) (Identity, error) {
-	mspIdentityLogger.Infof("Creating identity Mspid %s", id.Mspid)
-	mspIdentityLogger.Infof("Creating identity instance for ID %s", certToPEM(cert))
+	mspIdentityLogger.Debugf("Creating identity instance for ID %s", certToPEM(cert))
 
 	// Sanitize first the certificate
 	cert, err := msp.sanitizeCert(cert)
@@ -133,7 +132,6 @@ func (id *identity) Verify(msg []byte, sig []byte) error {
 		mspIdentityLogger.Debugf("Verify: sig = %s", hex.Dump(sig))
 	}
 
-	mylogger.Infof("xxxx begin Verify id.pk is %T", id.pk)
 	valid, err := id.msp.bccsp.Verify(id.pk, sig, digest, nil)
 	if err != nil {
 		return fmt.Errorf("Could not determine the validity of the signature, err %s", err)
@@ -185,12 +183,6 @@ type signingidentity struct {
 func newSigningIdentity(id *IdentityIdentifier, cert *sm2.Certificate, pk bccsp.Key, signer crypto.Signer, msp *bccspmsp) (SigningIdentity, error) {
 	//mspIdentityLogger.Infof("Creating signing identity instance for ID %s", id)
 
-	//
-	mylogger.Infof("in newSigningIdentity parm pk %T, private ? %t", pk, pk.Private())
-	kname := hex.EncodeToString(pk.SKI())
-	mylogger.Infof("pk (sk name) hash is :%s", kname)
-	//
-
 	mspId, err := newIdentity(id, cert, pk, msp)
 	if err != nil {
 		return nil, err
@@ -222,7 +214,6 @@ func (id *signingidentity) Sign(msg []byte) ([]byte, error) {
 
 	// Sign
 	signData, err := id.signer.Sign(rand.Reader, digest, nil)
-	mylogger.Infof("xxxxx ==== Sign return len :%d , err [%s]", len(signData), err)
 	//return id.signer.Sign(rand.Reader, digest, nil)
 	return signData, err
 }

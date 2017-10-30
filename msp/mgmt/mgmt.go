@@ -17,7 +17,6 @@ limitations under the License.
 package mgmt
 
 import (
-	"fmt"
 	"reflect"
 	"sync"
 
@@ -41,7 +40,6 @@ func LoadLocalMsp(dir string, bccspConfig *factory.FactoryOpts, mspID string) er
 		return err
 	}
 
-	fmt.Printf("xxx in msp.mgmt.mgmt.go call GetLocalMSP().Setup(conf)")
 	return GetLocalMSP().Setup(conf)
 }
 

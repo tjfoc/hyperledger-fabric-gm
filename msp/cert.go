@@ -72,7 +72,6 @@ func isECDSASignedCert(cert *sm2.Certificate) bool {
 // If the signature is not in low-S, then a new certificate is generated
 // that is equals to cert but the signature that is in low-S.
 func sanitizeECDSASignedCert(cert *sm2.Certificate, parentCert *sm2.Certificate) (*sm2.Certificate, error) {
-	mylogger.Info("in sanitizeECDSASignedCert")
 	if cert == nil {
 		return nil, errors.New("Certificate must be different from nil.")
 	}
@@ -80,22 +79,17 @@ func sanitizeECDSASignedCert(cert *sm2.Certificate, parentCert *sm2.Certificate)
 		return nil, errors.New("Parent certificate must be different from nil.")
 	}
 
-	mylogger.Info("gm.SignatureToLowS")
 	expectedSig, err := gm.SignatureToLowS(parentCert.PublicKey.(*ecdsa.PublicKey), cert.Signature)
 	if err != nil {
 		return nil, err
 	}
 
-	mylogger.Info("if sig == cert.Signature ?")
 	// if sig == cert.Signature, nothing needs to be done
 	if bytes.Equal(cert.Signature, expectedSig) {
-		mylogger.Info("true, nothing needs to be done")
 		return cert, nil
 	}
-	// otherwise create a new certificate with the new signature
-	mylogger.Info("false ,create a new certificate with the new signature")
-	mylogger.Info("1. Unmarshal cert.Raw to get an instance of certificate")
 
+	// otherwise create a new certificate with the new signature
 	// 1. Unmarshal cert.Raw to get an instance of certificate,
 	//    the lower level interface that represent an sm2 certificate
 	//    encoding
@@ -105,11 +99,9 @@ func sanitizeECDSASignedCert(cert *sm2.Certificate, parentCert *sm2.Certificate)
 		return nil, err
 	}
 
-	mylogger.Info("2. Change the signature")
 	// 2. Change the signature
 	newCert.SignatureValue = asn1.BitString{Bytes: expectedSig, BitLength: len(expectedSig) * 8}
 
-	mylogger.Info("3. marshal again newCert. Raw must be nil")
 	// 3. marshal again newCert. Raw must be nil
 	newCert.Raw = nil
 	newRaw, err := asn1.Marshal(newCert)
@@ -117,7 +109,6 @@ func sanitizeECDSASignedCert(cert *sm2.Certificate, parentCert *sm2.Certificate)
 		return nil, err
 	}
 
-	mylogger.Info("4. parse newRaw to get an sm2 certificate")
 	// 4. parse newRaw to get an sm2 certificate
 	return sm2.ParseCertificate(newRaw)
 }

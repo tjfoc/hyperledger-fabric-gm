@@ -18,24 +18,18 @@ Modified create GM options by Tongji Fintech Research Institute on 2017-09-15.
 package msp
 
 import (
+	"encoding/pem"
 	"fmt"
 	"io/ioutil"
-
-	"github.com/golang/protobuf/proto"
-
-	"encoding/pem"
+	"os"
 	"path/filepath"
 
-	"os"
-
+	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
-	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric/protos/msp"
 	"gopkg.in/yaml.v2"
 )
-
-var mylogger = flogging.MustGetLogger("msp/xx test xx")
 
 type OrganizationalUnitIdentifiersConfiguration struct {
 	Certificate                  string `yaml:"Certificate,omitempty"`
@@ -167,7 +161,6 @@ func GetVerifyingMspConfig(dir string, ID string) (*msp.MSPConfig, error) {
 }
 
 func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.MSPConfig, error) {
-	mylogger.Infof("in getMspConfig")
 	cacertDir := filepath.Join(dir, cacerts)
 	admincertDir := filepath.Join(dir, admincerts)
 	intermediatecertsDir := filepath.Join(dir, intermediatecerts)
@@ -175,10 +168,9 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 	configFile := filepath.Join(dir, configfilename)
 	tlscacertDir := filepath.Join(dir, tlscacerts)
 	tlsintermediatecertsDir := filepath.Join(dir, tlsintermediatecerts)
-
-	mylogger.Infof("cacert   :%s", cacertDir)
-	mylogger.Infof("admincert:%s", admincertDir)
-	mylogger.Infof("tlscert  :%s", tlscacertDir)
+	mspLogger.Debugf("cacert   :%s", cacertDir)
+	mspLogger.Debugf("admincert:%s", admincertDir)
+	mspLogger.Debugf("tlscert  :%s", tlscacertDir)
 
 	cacerts, err := getPemMaterialFromDir(cacertDir)
 	if err != nil || len(cacerts) == 0 {
