@@ -153,8 +153,8 @@ func DockerBuild(opts DockerBuildOptions) error {
 		}
 	}
 
-	opts.Image = "mygmfabric-ccenv:x86_64-1.0.2"
-	logger.Errorf("Attempting build with image %s", opts.Image)
+	//opts.Image = "mygmfabric-ccenv:x86_64-1.0.2"
+	//logger.Infof("Attempting build with image %s", opts.Image)
 
 	//opts.Image = "hyperledger/fabric-ccenv:x86_64-1.1.0"
 
