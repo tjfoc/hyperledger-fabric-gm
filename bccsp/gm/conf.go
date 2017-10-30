@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"hash"
 
-	"github.com/hyperledger/fabric/bccsp/gm/sm3"
+	"github.com/tjfoc/gmsm/sm3"
 )
 
 type config struct {

@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-Modified maoxiuze  by Tongji Fintech Research Institute on 2017-09-8
+Modified gm opts  by Tongji Fintech Research Institute on 2017-09-8
 */
 package bccsp
 
@@ -121,7 +121,6 @@ func (opts *GMSM2KeyGenOpts) Algorithm() string {
 func (opts *GMSM2KeyGenOpts) Ephemeral() bool {
 	return opts.Temporary
 }
-
 
 // GMSM4KeyGenOpts contains options for GMSM2 key generation.
 type GMSM4KeyGenOpts struct {
@@ -338,8 +337,6 @@ func (opts *GMSM2PublicKeyImportOpts) Algorithm() string {
 func (opts *GMSM2PublicKeyImportOpts) Ephemeral() bool {
 	return opts.Temporary
 }
-
-
 
 // HMACImportKeyOpts contains options for importing HMAC keys.
 type HMACImportKeyOpts struct {

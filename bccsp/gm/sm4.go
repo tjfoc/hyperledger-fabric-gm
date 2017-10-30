@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/gm/sm4"
+	"github.com/tjfoc/gmsm/sm4"
 )
 
 // GetRandomBytes returns len random looking bytes

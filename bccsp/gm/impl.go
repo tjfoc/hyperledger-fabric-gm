@@ -16,16 +16,15 @@ limitations under the License.
 package gm
 
 import (
+	"crypto/sha256"
+	"crypto/sha512"
 	"hash"
 	"reflect"
 
-	"crypto/sha256"
-	"crypto/sha512"
-
 	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/gm/sm3"
 	"github.com/hyperledger/fabric/common/errors"
 	"github.com/hyperledger/fabric/common/flogging"
+	"github.com/tjfoc/gmsm/sm3"
 	"golang.org/x/crypto/sha3"
 )
 

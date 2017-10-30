@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 //定义国密SM2 keygen 结构体，实现 KeyGenerator 接口

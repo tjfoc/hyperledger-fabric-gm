@@ -27,10 +27,10 @@ import (
 	"sync"
 
 	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
-	"github.com/hyperledger/fabric/bccsp/gm/sm4"
 	"github.com/hyperledger/fabric/bccsp/utils"
 	"github.com/hyperledger/fabric/common/flogging"
+	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/gmsm/sm4"
 )
 
 var mylogger = flogging.MustGetLogger("xx bccsp_gm xx")
