@@ -2,6 +2,8 @@
 Copyright IBM Corp. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
+
+Modified create GM SM2 options by Tongji Fintech Research Institute on 2017-09-20.
 */
 
 package msp
@@ -18,7 +20,7 @@ import (
 	"time"
 
 	"github.com/hyperledger/fabric/bccsp/gm"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 type dsaSignature struct {

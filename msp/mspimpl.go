@@ -2,6 +2,8 @@
 Copyright IBM Corp. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
+
+Modified create GM options by Tongji Fintech Research Institute on 2017-09-15.
 */
 
 package msp
@@ -23,9 +25,9 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/hyperledger/fabric/bccsp/signer"
 	m "github.com/hyperledger/fabric/protos/msp"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 // This is an instantiation of an MSP that
@@ -177,11 +179,11 @@ func (msp *bccspmsp) getSigningIdentityFromConf(sidInfo *m.SigningIdentityInfo) 
 		if err != nil {
 			return nil, fmt.Errorf("getIdentityFromBytes error: Failed to import EC private key, err %s", err)
 		}
-		mylogger.Infof("xxx new peerSigner bccsp: %T,KeyImport privKey:%T",msp.bccsp,privKey)
+		mylogger.Infof("xxx new peerSigner bccsp: %T,KeyImport privKey:%T", msp.bccsp, privKey)
 	}
 
 	// get the peer signer
-	mylogger.Infof("xxx new peerSigner bccsp: %T, get privKey by puk.ski is :%T",msp.bccsp,privKey)
+	mylogger.Infof("xxx new peerSigner bccsp: %T, get privKey by puk.ski is :%T", msp.bccsp, privKey)
 	peerSigner, err := signer.New(msp.bccsp, privKey)
 	if err != nil {
 		return nil, fmt.Errorf("getIdentityFromBytes error: Failed initializing bccspCryptoSigner, err %s", err)
@@ -872,7 +874,7 @@ func (msp *bccspmsp) finalizeSetupCAs(config *m.FabricMSPConfig) error {
 }
 
 func (msp *bccspmsp) setupSigningIdentity(conf *m.FabricMSPConfig) error {
-	mylogger.Infof("xxxx entry setupSigningIdentity,conf.SigningIdentity==nil ? %v",conf.SigningIdentity==nil)
+	mylogger.Infof("xxxx entry setupSigningIdentity,conf.SigningIdentity==nil ? %v", conf.SigningIdentity == nil)
 	if conf.SigningIdentity != nil {
 		sid, err := msp.getSigningIdentityFromConf(conf.SigningIdentity)
 		if err != nil {
