@@ -1,0 +1,41 @@
+
+sudo: false
+language: 
+  - go
+go:
+  - 1.8.3
+
+  
+install:
+  - go get -v github.com/golang/lint/golint
+  - go get -v github.com/tjfoc/gmsm/sm2
+  - go get -v golang.org/x/crypto/chacha20poly1305
+  - go get -v golang.org/x/net/context
+  - go get -v google.golang.org/grpc/credentials
+  - go get -v github.com/golang/protobuf/proto
+  - go get -v golang.org/x/text/secure/bidirule
+  - go get -v google.golang.org/genproto/googleapis/rpc/status
+  - pwd
+  - go build
+  - go build -v ./gmcredentials
+  - go build -v ./gmcredentials/echo
+  
+
+script:
+  - go vet ./gmcredentials
+  - go test ./gmcredentials
+  
+after_failure:   
+
+ - |
+  echo "Error!"
+notifications:
+  email:
+    recipients:
+      - zhiqiang@tj-fintech.com
+      - yanwenze@tj-fintech.com
+      - maoxiuze@tj-fintech.com
+      - yewei@tj-fintech.com
+      
+    on_success: never # default: change
+    on_failure: never # default: always
