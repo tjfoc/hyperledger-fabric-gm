@@ -12,3 +12,6 @@ you may not use this file except in compliance with the License. You may obtain 
 
 See the License for the specific language governing permissions and limitations under the License.
 
+
+
+[![Join the chat at https://gitter.im/tjfoc/hyperledger-fabric-gm](https://badges.gitter.im/tjfoc/hyperledger-fabric-gm.svg)](https://gitter.im/tjfoc/hyperledger-fabric-gm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
