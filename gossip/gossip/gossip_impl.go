@@ -431,7 +431,6 @@ func (g *gossipServiceImpl) validateMsg(msg proto.ReceivedMessage) bool {
 
 	if msg.GetGossipMessage().IsAliveMsg() {
 		if !g.disSecAdap.ValidateAliveMsg(msg.GetGossipMessage()) {
-			g.logger.Warning("xxx IsAliveMsg disSecAdap.ValidateAliveMsg  return false")
 			return false
 		}
 	}
@@ -1134,7 +1133,6 @@ func (g *gossipServiceImpl) validateLeadershipMessage(msg *proto.SignedGossipMes
 }
 
 func (g *gossipServiceImpl) validateStateInfoMsg(msg *proto.SignedGossipMessage) error {
-	g.logger.Info("xxx entry validateStateInfoMsg  0x78 xxxxx")
 	verifier := func(identity []byte, signature, message []byte) error {
 		pkiID := g.idMapper.GetPKIidOfCert(api.PeerIdentityType(identity))
 		if pkiID == nil {
@@ -1146,7 +1144,6 @@ func (g *gossipServiceImpl) validateStateInfoMsg(msg *proto.SignedGossipMessage)
 	if err != nil {
 		return err
 	}
-	g.logger.Info("xxx exit validateStateInfoMsg  return msg.Verify xxxxx")
 	return msg.Verify(identity, verifier)
 }
 
