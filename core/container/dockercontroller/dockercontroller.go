@@ -368,10 +368,6 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 		}
 	}
 
-	dockerLogger.Errorf("before StartContainer sleep 30s,containerID:%s", containerID)
-	time.Sleep(30 * time.Second)
-	dockerLogger.Error("StartContainer")
-
 	// start container with HostConfig was deprecated since v1.10 and removed in v1.2
 	err = client.StartContainer(containerID, nil)
 	if err != nil {
@@ -380,10 +376,6 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 	}
 
 	dockerLogger.Debugf("Started container %s", containerID)
-
-	dockerLogger.Error("end Started container finished sleep 30s")
-	time.Sleep(30 * time.Second)
-
 	return nil
 }
 
