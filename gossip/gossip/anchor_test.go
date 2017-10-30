@@ -17,7 +17,6 @@ limitations under the License.
 package gossip
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net"
@@ -32,9 +31,10 @@ import (
 	"github.com/hyperledger/fabric/gossip/common"
 	proto "github.com/hyperledger/fabric/protos/gossip"
 	"github.com/stretchr/testify/assert"
+	tls "github.com/tjfoc/gmtls"
+	credentials "github.com/tjfoc/gmtls/gmcredentials"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 type peerMock struct {

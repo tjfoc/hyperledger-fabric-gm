@@ -1,12 +1,12 @@
 package listeners
 
 import (
-	"crypto/tls"
 	"fmt"
 	"net"
 	"strings"
 
-	"github.com/Microsoft/go-winio"
+	"crypto/tls"
+
 	"github.com/docker/go-connections/sockets"
 )
 

@@ -12,26 +12,23 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+Modified create GM options by Tongji Fintech Research Institute on 2017-09-15.
 */
 package msp
 
 import (
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/pem"
 	"os"
 	"path/filepath"
 
-	"encoding/hex"
-
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
-	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/ca"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/csp"
+	"github.com/tjfoc/gmsm/sm2"
 )
-
-var mylogger = flogging.MustGetLogger("xx cryptogen xx")
 
 func GenerateLocalMSP(baseDir, name string, sans []string, signCA *ca.CA,
 	tlsCA *ca.CA) error {
@@ -172,9 +169,6 @@ func GenerateVerifyingMSP(baseDir string, signCA *ca.CA, tlsCA *ca.CA) error {
 	//ecPubKey, err := csp.GetECPublicKey(priv)
 	sm2PubKey, err := csp.GetSM2PublicKey(priv)
 
-	//mylogger.Infof("csp.GetSM2PublicKey(priv) return sm2PubKey: %v", sm2PubKey)
-	//
-	//xx
 	//csp.GeneratePrivateKey()
 	//
 	if err != nil {

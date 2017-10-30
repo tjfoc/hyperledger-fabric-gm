@@ -18,7 +18,6 @@ package gossip
 
 import (
 	"bytes"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"reflect"
@@ -38,6 +37,7 @@ import (
 	"github.com/hyperledger/fabric/gossip/util"
 	proto "github.com/hyperledger/fabric/protos/gossip"
 	"github.com/op/go-logging"
+	tls "github.com/tjfoc/gmtls"
 	"google.golang.org/grpc"
 )
 
@@ -82,7 +82,6 @@ type gossipServiceImpl struct {
 func NewGossipService(conf *Config, s *grpc.Server, secAdvisor api.SecurityAdvisor,
 	mcs api.MessageCryptoService, idMapper identity.Mapper, selfIdentity api.PeerIdentityType,
 	secureDialOpts api.PeerSecureDialOpts) Gossip {
-
 	var c comm.Comm
 	var err error
 
@@ -356,12 +355,11 @@ func (g *gossipServiceImpl) handleMessage(m proto.ReceivedMessage) {
 	}
 
 	msg := m.GetGossipMessage()
-
 	g.logger.Debug("Entering,", m.GetConnectionInfo(), "sent us", msg)
 	defer g.logger.Debug("Exiting")
 
 	if !g.validateMsg(m) {
-		g.logger.Warning("Message", msg, "isn't valid")
+		g.logger.Warning("Message ##2", msg, "isn't valid")
 		return
 	}
 
@@ -922,7 +920,6 @@ func (sa *discoverySecurityAdapter) ValidateAliveMsg(m *proto.SignedGossipMessag
 		sa.logger.Debug("Don't have certificate for", am)
 		return false
 	}
-
 	return sa.validateAliveMsgSignature(m, identity)
 }
 
@@ -967,7 +964,6 @@ func (sa *discoverySecurityAdapter) validateAliveMsgSignature(m *proto.SignedGos
 		sa.logger.Warning("Failed verifying:", am, ":", err)
 		return false
 	}
-
 	return true
 }
 

@@ -17,7 +17,6 @@ limitations under the License.
 package comm
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -30,6 +29,7 @@ import (
 	"github.com/hyperledger/fabric/core/testutil"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	tls "github.com/tjfoc/gmtls"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )

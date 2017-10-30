@@ -27,9 +27,9 @@ import (
 	pb "github.com/hyperledger/fabric/protos/peer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	credentials "github.com/tjfoc/gmtls/gmcredentials"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 const (

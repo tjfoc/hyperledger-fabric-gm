@@ -378,7 +378,6 @@ func (ks *fileBasedKeyStore) loadKey(alias string) ([]byte, error) {
 	}
 
 	key, err := utils.PEMtoAES(pem, ks.pwd)
-	fmt.Printf("xxx sw fileks PEMtoAES key ln [%d]",len(key))
 	if err != nil {
 		logger.Errorf("Failed parsing key [%s]: [%s]", alias, err)
 

@@ -19,4 +19,4 @@ ADD payload/protos.tar.bz2 /root
 ADD payload/settings.gradle /root
 WORKDIR /root
 # Build java shim after copying proto files from fabric/proto
-RUN core/chaincode/shim/java/javabuild.sh
+#RUN core/chaincode/shim/java/javabuild.sh

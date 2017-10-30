@@ -491,7 +491,6 @@ func (chaincodeSupport *ChaincodeSupport) launchAndWaitForRegister(ctxt context.
 		chaincodeSupport.runningChaincodes.Unlock()
 		return err
 	}
-
 	//wait for REGISTER state
 	select {
 	case ok := <-notfy:

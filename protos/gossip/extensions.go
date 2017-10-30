@@ -539,7 +539,7 @@ func (m *SignedGossipMessage) String() string {
 			gMsg = fmt.Sprintf("%s %s", desc, gMsg)
 		}
 	}
-	return fmt.Sprintf("GossipMessage: %v, Envelope: %s", gMsg, env)
+	return fmt.Sprintf("GossipMessage: %v,Envelope: %s", gMsg, env)
 }
 
 // Abs returns abs(a-b)

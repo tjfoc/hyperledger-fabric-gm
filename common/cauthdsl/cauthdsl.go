@@ -75,6 +75,7 @@ func compile(policy *cb.SignaturePolicy, identities []*mb.MSPPrincipal, deserial
 		signedByID := identities[t.SignedBy]
 		return func(signedData []*cb.SignedData, used []bool) bool {
 			cauthdslLogger.Debugf("%p signed by %d principal evaluation starts (used %v)", signedData, t.SignedBy, used)
+
 			for i, sd := range signedData {
 				if used[i] {
 					cauthdslLogger.Debugf("%p skipping identity %d because it has already been used", signedData, i)
@@ -84,7 +85,9 @@ func compile(policy *cb.SignaturePolicy, identities []*mb.MSPPrincipal, deserial
 					// Unlike most places, this is a huge print statement, and worth checking log level before create garbage
 					cauthdslLogger.Debugf("%p processing identity %d with bytes of %x", signedData, i, sd.Identity)
 				}
+
 				identity, err := deserializer.DeserializeIdentity(sd.Identity)
+
 				if err != nil {
 					cauthdslLogger.Errorf("Principal deserialization failure (%s) for identity %x", err, sd.Identity)
 					continue

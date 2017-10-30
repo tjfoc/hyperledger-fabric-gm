@@ -12,6 +12,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+Modified create GM sm2Cert options by Tongji Fintech Research Institute on 2017-09-15.
+
 */
 package ca
 
@@ -22,18 +24,16 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"io/ioutil"
 	"math/big"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/gm"
-
-	"io/ioutil"
-	"path/filepath"
-
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/csp"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 type CA struct {
@@ -216,7 +216,6 @@ func genCertificateGMSM2(baseDir, name string, template, parent *sm2.Certificate
 	// if err != nil {
 	// 	return nil, err
 	// }
-	// fmt.Println("xxx end Encode")
 	//x509Cert, err := sm2.ReadCertificateFromPem(fileName)
 
 	x509Cert, err := sm2.ReadCertificateFromMem(certBytes)

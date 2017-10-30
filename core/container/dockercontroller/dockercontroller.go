@@ -180,6 +180,7 @@ func (vm *DockerVM) deployImage(client dockerClient, ccid ccintf.CCID,
 	}
 
 	if err := client.BuildImage(opts); err != nil {
+		dockerLogger.Errorf("Error building images opts: %v", opts)
 		dockerLogger.Errorf("Error building images: %s", err)
 		dockerLogger.Errorf("Image Output:\n********************\n%s\n********************", outputbuf.String())
 		return err
@@ -212,6 +213,7 @@ func (vm *DockerVM) Deploy(ctxt context.Context, ccid ccintf.CCID,
 //Start starts a container using a previously created docker image
 func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 	args []string, env []string, builder container.BuildSpecFactory, prelaunchFunc container.PrelaunchFunc) error {
+
 	imageID, err := vm.GetVMName(ccid, formatImageName)
 	if err != nil {
 		return err
@@ -234,15 +236,16 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 	dockerLogger.Debugf("Cleanup container %s", containerID)
 	vm.stopInternal(ctxt, client, containerID, 0, false, false)
 
-	dockerLogger.Debugf("Start container %s", containerID)
+	dockerLogger.Debugf("Start container imageID %s", imageID)
+	dockerLogger.Debugf("Start container containerID %s", containerID)
 	err = vm.createContainer(ctxt, client, imageID, containerID, args, env, attachStdout)
+
 	if err != nil {
 		//if image not found try to create image and retry
 		if err == docker.ErrNoSuchImage {
 			if builder != nil {
 				dockerLogger.Debugf("start-could not find image <%s> (container id <%s>), because of <%s>..."+
 					"attempt to recreate image", imageID, containerID, err)
-
 				reader, err1 := builder()
 				if err1 != nil {
 					dockerLogger.Errorf("Error creating image builder for image <%s> (container id <%s>), "+
@@ -254,6 +257,7 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 				}
 
 				dockerLogger.Debug("start-recreated image successfully")
+
 				if err1 = vm.createContainer(ctxt, client, imageID, containerID, args, env, attachStdout); err1 != nil {
 					dockerLogger.Errorf("start-could not recreate container post recreate image: %s", err1)
 					return err1
@@ -339,6 +343,7 @@ func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
 	}
 
 	if prelaunchFunc != nil {
+		dockerLogger.Debugf("xx prelaunchFunc")
 		if err = prelaunchFunc(); err != nil {
 			return err
 		}

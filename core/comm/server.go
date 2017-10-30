@@ -7,14 +7,14 @@ SPDX-License-Identifier: Apache-2.0
 package comm
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"net"
 	"sync"
 
+	"github.com/tjfoc/gmsm/sm2"
+	tls "github.com/tjfoc/gmtls"
 	"google.golang.org/grpc"
 )
 
@@ -83,7 +83,7 @@ type grpcServerImpl struct {
 	lock *sync.Mutex
 	//Set of PEM-encoded X509 certificate authorities used to populate
 	//the tlsConfig.ClientCAs indexed by subject
-	clientRootCAs map[string]*x509.Certificate
+	clientRootCAs map[string]*sm2.Certificate
 	//TLS configuration used by the grpc server
 	tlsConfig *tls.Config
 	//Is TLS enabled?
@@ -147,8 +147,8 @@ func NewGRPCServerFromListener(listener net.Listener, secureConfig SecureServerC
 				grpcServer.tlsConfig.ClientAuth = tls.RequireAndVerifyClientCert
 				//if we have client root CAs, create a certPool
 				if len(secureConfig.ClientRootCAs) > 0 {
-					grpcServer.clientRootCAs = make(map[string]*x509.Certificate)
-					grpcServer.tlsConfig.ClientCAs = x509.NewCertPool()
+					grpcServer.clientRootCAs = make(map[string]*sm2.Certificate)
+					grpcServer.tlsConfig.ClientCAs = sm2.NewCertPool()
 					for _, clientRootCA := range secureConfig.ClientRootCAs {
 						err = grpcServer.appendClientRootCA(clientRootCA)
 						if err != nil {
@@ -264,7 +264,7 @@ func (gServer *grpcServerImpl) RemoveClientRootCAs(clientRoots [][]byte) error {
 	}
 
 	//create a new CertPool and populate with current clientRootCAs
-	certPool := x509.NewCertPool()
+	certPool := sm2.NewCertPool()
 	for _, clientRoot := range gServer.clientRootCAs {
 		certPool.AddCert(clientRoot)
 	}
@@ -307,7 +307,7 @@ func (gServer *grpcServerImpl) SetClientRootCAs(clientRoots [][]byte) error {
 	errMsg := "Failed to set client root certificate(s): %s"
 
 	//create a new map and CertPool
-	clientRootCAs := make(map[string]*x509.Certificate)
+	clientRootCAs := make(map[string]*sm2.Certificate)
 	for _, clientRoot := range clientRoots {
 		certs, subjects, err := pemToX509Certs(clientRoot)
 		if err != nil {
@@ -322,7 +322,7 @@ func (gServer *grpcServerImpl) SetClientRootCAs(clientRoots [][]byte) error {
 	}
 
 	//create a new CertPool and populate with the new clientRootCAs
-	certPool := x509.NewCertPool()
+	certPool := sm2.NewCertPool()
 	for _, clientRoot := range clientRootCAs {
 		certPool.AddCert(clientRoot)
 	}
@@ -334,10 +334,10 @@ func (gServer *grpcServerImpl) SetClientRootCAs(clientRoots [][]byte) error {
 }
 
 //utility function to parse PEM-encoded certs
-func pemToX509Certs(pemCerts []byte) ([]*x509.Certificate, []string, error) {
+func pemToX509Certs(pemCerts []byte) ([]*sm2.Certificate, []string, error) {
 
 	//it's possible that multiple certs are encoded
-	certs := []*x509.Certificate{}
+	certs := []*sm2.Certificate{}
 	subjects := []string{}
 	for len(pemCerts) > 0 {
 		var block *pem.Block
@@ -351,7 +351,7 @@ func pemToX509Certs(pemCerts []byte) ([]*x509.Certificate, []string, error) {
 		}
 		*/
 
-		cert, err := x509.ParseCertificate(block.Bytes)
+		cert, err := sm2.ParseCertificate(block.Bytes)
 		if err != nil {
 			return nil, subjects, err
 		} else {

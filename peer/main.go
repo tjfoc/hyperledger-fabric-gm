@@ -38,7 +38,6 @@ import (
 )
 
 var logger = flogging.MustGetLogger("main")
-var mylogger = flogging.MustGetLogger("xxx peer xx")
 var logOutput = os.Stderr
 
 // Constants go here.
@@ -74,6 +73,7 @@ var mainCmd = &cobra.Command{
 var versionFlag bool
 
 func main() {
+	logger.Info("=============== GM peer start ========================")
 	// For environment variables.
 	viper.SetEnvPrefix(cmdRoot)
 	viper.AutomaticEnv()
@@ -110,17 +110,14 @@ func main() {
 	var mspMgrConfigDir = config.GetPath("peer.mspConfigPath")
 	var mspID = viper.GetString("peer.localMspId")
 
-	mylogger.Infof("1111 before InitCrypto ,mspMgrConfigDir:[%s],mspID:[%s]", mspMgrConfigDir, mspID)
 	err = common.InitCrypto(mspMgrConfigDir, mspID)
 	if err != nil { // Handle errors reading the config file
 		logger.Errorf("Cannot run peer because %s", err.Error())
 		os.Exit(1)
 	}
-	logger.Info("xxxxxxxxxxxxxxxxx run  run  xxxxxxxxxxxxxxxxxxxxxxxx")
 	// On failure Cobra prints the usage message and error string, so we only
 	// need to exit with a non-0 status
 	if mainCmd.Execute() != nil {
 		os.Exit(1)
 	}
-	logger.Info("Exiting.....")
 }

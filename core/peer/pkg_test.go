@@ -7,8 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package peer_test
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -16,11 +14,6 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-
-	"google.golang.org/grpc/credentials"
-
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 
 	"github.com/golang/protobuf/proto"
 	configtxtest "github.com/hyperledger/fabric/common/configtx/test"
@@ -32,6 +25,11 @@ import (
 	mspproto "github.com/hyperledger/fabric/protos/msp"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/tjfoc/gmsm/sm2"
+	tls "github.com/tjfoc/gmtls"
+	credentials "github.com/tjfoc/gmtls/gmcredentials"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 // default timeout for grpc connections
@@ -45,9 +43,9 @@ func (tss *testServiceServer) EmptyCall(context.Context, *testpb.Empty) (*testpb
 }
 
 // createCertPool creates an x509.CertPool from an array of PEM-encoded certificates
-func createCertPool(rootCAs [][]byte) (*x509.CertPool, error) {
+func createCertPool(rootCAs [][]byte) (*sm2.CertPool, error) {
 
-	certPool := x509.NewCertPool()
+	certPool := sm2.NewCertPool()
 	for _, rootCA := range rootCAs {
 		if !certPool.AppendCertsFromPEM(rootCA) {
 			return nil, errors.New("Failed to load root certificates")

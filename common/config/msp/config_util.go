@@ -56,19 +56,14 @@ func TemplateGroupMSPWithAdminRolePrincipal(configPath []string, mspConfig *mspp
 		logger.Panicf("Creating the MSP manager failed, err %s", err)
 	}
 
-
-	logger.Info("xxxx config_util.go begin Setup()")
 	// set it up
 	err = mspInst.Setup(mspConfig)
 	if err != nil {
 		logger.Panicf("Setting up the MSP manager failed, err %s", err)
 	}
 
-	logger.Info("xxxx config_util.go begin GetIdentifier()")
 	// add the MSP to the map of pending MSPs
 	mspID, _ := mspInst.GetIdentifier()
-
-	logger.Info("xxxx config_util.go begin ConfigPolicy {}")
 	memberPolicy := &cb.ConfigPolicy{
 		Policy: &cb.Policy{
 			Type:  int32(cb.Policy_SIGNATURE),
@@ -92,9 +87,6 @@ func TemplateGroupMSPWithAdminRolePrincipal(configPath []string, mspConfig *mspp
 
 	result := cb.NewConfigGroup()
 
-
-	logger.Infof("xxxx config_util.go result:[%+v]",result)
-
 	intermediate := result
 	for _, group := range configPath {
 		intermediate.Groups[group] = cb.NewConfigGroup()
@@ -107,7 +99,6 @@ func TemplateGroupMSPWithAdminRolePrincipal(configPath []string, mspConfig *mspp
 	intermediate.Policies[ReadersPolicyKey] = memberPolicy
 	intermediate.Policies[WritersPolicyKey] = memberPolicy
 
-	logger.Infof("xxxx config_util.go return result:[%v]",result)
 	return result
 }
 

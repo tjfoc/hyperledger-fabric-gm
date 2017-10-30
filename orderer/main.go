@@ -60,7 +60,11 @@ var (
 
 func main() {
 
+	logger.Info("=====================================")
+	logger.Info("===========in order main==============")
+	logger.Info("=====================================")
 	kingpin.Version("0.0.1")
+
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 
 	// "start" command

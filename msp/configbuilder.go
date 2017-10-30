@@ -12,21 +12,19 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+Modified create GM options by Tongji Fintech Research Institute on 2017-09-15.
 */
 
 package msp
 
 import (
+	"encoding/pem"
 	"fmt"
 	"io/ioutil"
-
-	"github.com/golang/protobuf/proto"
-
-	"encoding/pem"
+	"os"
 	"path/filepath"
 
-	"os"
-
+	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
 	"github.com/hyperledger/fabric/protos/msp"
@@ -128,18 +126,6 @@ func SetupBCCSPKeystoreConfig(bccspConfig *factory.FactoryOpts, keystoreDir stri
 			bccspConfig.SwOpts.FileKeystore = &factory.FileKeystoreOpts{KeyStorePath: keystoreDir}
 		}
 	}
-	if bccspConfig.ProviderName == "GM" {
-		if bccspConfig.SwOpts == nil {
-			bccspConfig.SwOpts = factory.GetDefaultOpts().SwOpts
-		}
-
-		// Only override the KeyStorePath if it was left empty
-		if bccspConfig.SwOpts.FileKeystore == nil ||
-			bccspConfig.SwOpts.FileKeystore.KeyStorePath == "" {
-			bccspConfig.SwOpts.Ephemeral = false
-			bccspConfig.SwOpts.FileKeystore = &factory.FileKeystoreOpts{KeyStorePath: keystoreDir}
-		}
-	}
 
 	return bccspConfig
 }
@@ -167,7 +153,6 @@ func GetLocalMspConfig(dir string, bccspConfig *factory.FactoryOpts, ID string) 
 
 	sigid := &msp.SigningIdentityInfo{PublicSigner: signcert[0], PrivateSigner: nil}
 
-	mylogger.Infof("&msp.SigningIdentityInfo{PublicSigner: signcert[0], PrivateSigner: nil}:%v", sigid)
 	return getMspConfig(dir, ID, sigid)
 }
 
@@ -176,7 +161,6 @@ func GetVerifyingMspConfig(dir string, ID string) (*msp.MSPConfig, error) {
 }
 
 func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.MSPConfig, error) {
-	mylogger.Infof("in getMspConfig")
 	cacertDir := filepath.Join(dir, cacerts)
 	admincertDir := filepath.Join(dir, admincerts)
 	intermediatecertsDir := filepath.Join(dir, intermediatecerts)
@@ -184,10 +168,10 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 	configFile := filepath.Join(dir, configfilename)
 	tlscacertDir := filepath.Join(dir, tlscacerts)
 	tlsintermediatecertsDir := filepath.Join(dir, tlsintermediatecerts)
+	mspLogger.Debugf("cacert   :%s", cacertDir)
+	mspLogger.Debugf("admincert:%s", admincertDir)
+	mspLogger.Debugf("tlscert  :%s", tlscacertDir)
 
-	mylogger.Infof("cacert   :%s", cacertDir)
-	mylogger.Infof("admincert:%s", admincertDir)
-	mylogger.Infof("tlscert  :%s", tlscacertDir)
 	cacerts, err := getPemMaterialFromDir(cacertDir)
 	if err != nil || len(cacerts) == 0 {
 		return nil, fmt.Errorf("Could not load a valid ca certificate from directory %s, err %s", cacertDir, err)

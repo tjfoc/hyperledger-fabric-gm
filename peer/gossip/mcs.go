@@ -256,6 +256,7 @@ func (s *mspMessageCryptoService) VerifyByChannel(chainID common.ChainID, peerId
 }
 
 func (s *mspMessageCryptoService) getValidatedIdentity(peerIdentity api.PeerIdentityType) (msp.Identity, common.ChainID, error) {
+
 	// Validate arguments
 	if len(peerIdentity) == 0 {
 		return nil, nil, errors.New("Invalid Peer Identity. It must be different from nil.")
@@ -291,6 +292,8 @@ func (s *mspMessageCryptoService) getValidatedIdentity(peerIdentity api.PeerIden
 		}
 	}
 
+	mcsLogger.Infof("//////////////////// s.deserializer.GetChannelDeserializers() len :%d", len(s.deserializer.GetChannelDeserializers()))
+
 	// Check against managers
 	for chainID, mspManager := range s.deserializer.GetChannelDeserializers() {
 		// Deserialize identity
@@ -314,6 +317,6 @@ func (s *mspMessageCryptoService) getValidatedIdentity(peerIdentity api.PeerIden
 
 		return identity, common.ChainID(chainID), nil
 	}
-
+	mcsLogger.Infof("////////////  return  nil err ")
 	return nil, nil, fmt.Errorf("Peer Identity [% x] cannot be validated. No MSP found able to do that.", peerIdentity)
 }

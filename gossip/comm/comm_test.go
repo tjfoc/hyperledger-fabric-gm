@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
-	"crypto/tls"
 	"fmt"
 	"math/rand"
 	"net"
@@ -39,9 +38,10 @@ import (
 	proto "github.com/hyperledger/fabric/protos/gossip"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	tls "github.com/tjfoc/gmtls"
+	credentials "github.com/tjfoc/gmtls/gmcredentials"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 func init() {

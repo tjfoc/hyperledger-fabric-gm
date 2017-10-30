@@ -12,6 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+Modified create GM options by Tongji Fintech Research Institute on 2017-09-15.
 */
 package csp
 
@@ -22,8 +23,8 @@ import (
 
 	"github.com/hyperledger/fabric/bccsp"
 	"github.com/hyperledger/fabric/bccsp/factory"
-	"github.com/hyperledger/fabric/bccsp/gm/sm2"
 	"github.com/hyperledger/fabric/bccsp/signer"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 // GeneratePrivateKey creates a private key and stores it in keystorePath
