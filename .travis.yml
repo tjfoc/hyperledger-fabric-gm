@@ -56,7 +56,7 @@ before_script:
  #- ls $HOME/gopath/src/golang.org/x/tools
  - chmod -R 777 *
 # - goimports -w $GOPATH/src/github.com/hyperledger/fabric/bccsp/
- - goimports -w $GOPATH/src/github.com/hyperledger/fabric/
+# - goimports -w $GOPATH/src/github.com/hyperledger/fabric/
  - make linter
  - cd $GOPATH/src/github.com/hyperledger/fabric
  - make all
@@ -95,6 +95,6 @@ notifications:
       - yewei@tj-fintech.com
       
     on_success: never # default: change
-    on_failure: always # default: always
+  #  on_failure: always # default: always
   
  
