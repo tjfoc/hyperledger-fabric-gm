@@ -60,7 +60,10 @@ before_script:
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/orderer
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/peer
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/protos
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
  - make linter
  - cd $GOPATH/src/github.com/hyperledger/fabric
  - make all

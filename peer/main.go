@@ -73,7 +73,7 @@ var mainCmd = &cobra.Command{
 var versionFlag bool
 
 func main() {
-	logger.Info("=============== GM peer start ========================")
+	logger.Info("=============== GM peer starting ========================")
 	// For environment variables.
 	viper.SetEnvPrefix(cmdRoot)
 	viper.AutomaticEnv()
