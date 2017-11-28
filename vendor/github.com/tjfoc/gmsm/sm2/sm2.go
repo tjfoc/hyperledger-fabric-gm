@@ -17,6 +17,7 @@ package sm2
 
 // reference to ecdsa
 import (
+	"bytes"
 	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
@@ -24,14 +25,13 @@ import (
 	"crypto/rand"
 	"crypto/sha512"
 	"encoding/asn1"
+	"encoding/binary"
 	"errors"
 	"io"
 	"math/big"
-)
 
-type combinedMult interface {
-	CombinedMult(bigX, bigY *big.Int, baseScalar, scalar []byte) (x, y *big.Int)
-}
+	"github.com/tjfoc/gmsm/sm3"
+)
 
 const (
 	aesIV = "IV for <SM2> CTR"
@@ -65,8 +65,13 @@ func (priv *PrivateKey) Sign(rand io.Reader, msg []byte, opts crypto.SignerOpts)
 	return asn1.Marshal(sm2Signature{r, s})
 }
 
+func (priv *PrivateKey) Decrypt(data []byte) ([]byte, error) {
+	return Decrypt(priv, data)
+}
+
 func (pub *PublicKey) Verify(msg []byte, sign []byte) bool {
 	var sm2Sign sm2Signature
+
 	_, err := asn1.Unmarshal(sign, &sm2Sign)
 	if err != nil {
 		return false
@@ -74,7 +79,44 @@ func (pub *PublicKey) Verify(msg []byte, sign []byte) bool {
 	return Verify(pub, msg, sm2Sign.R, sm2Sign.S)
 }
 
+func (pub *PublicKey) Encrypt(data []byte) ([]byte, error) {
+	return Encrypt(pub, data)
+}
+
 var one = new(big.Int).SetInt64(1)
+
+func intToBytes(x int) []byte {
+	var buf = make([]byte, 4)
+
+	binary.BigEndian.PutUint32(buf, uint32(x))
+	return buf
+}
+
+func kdf(x, y []byte, length int) ([]byte, bool) {
+	var c []byte
+
+	ct := 1
+	h := sm3.New()
+	x = append(x, y...)
+	for i, j := 0, (length+31)/32; i < j; i++ {
+		h.Reset()
+		h.Write(x)
+		h.Write(intToBytes(ct))
+		hash := h.Sum(nil)
+		if i+1 == j && length%32 != 0 {
+			c = append(c, hash[:length%32]...)
+		} else {
+			c = append(c, hash...)
+		}
+		ct++
+	}
+	for i := 0; i < length; i++ {
+		if c[i] != 0 {
+			return c, true
+		}
+	}
+	return c, false
+}
 
 func randFieldElement(c elliptic.Curve, rand io.Reader) (k *big.Int, err error) {
 	params := c.Params()
@@ -194,18 +236,108 @@ func Verify(pub *PublicKey, hash []byte, r, s *big.Int) bool {
 	}
 
 	var x *big.Int
-	if opt, ok := c.(combinedMult); ok {
-		x, _ = opt.CombinedMult(pub.X, pub.Y, s.Bytes(), t.Bytes())
-	} else {
-		x1, y1 := c.ScalarBaseMult(s.Bytes())
-		x2, y2 := c.ScalarMult(pub.X, pub.Y, t.Bytes())
-		x, _ = c.Add(x1, y1, x2, y2)
-	}
+	x1, y1 := c.ScalarBaseMult(s.Bytes())
+	x2, y2 := c.ScalarMult(pub.X, pub.Y, t.Bytes())
+	x, _ = c.Add(x1, y1, x2, y2)
 
 	e := new(big.Int).SetBytes(hash)
 	x.Add(x, e)
 	x.Mod(x, N)
 	return x.Cmp(r) == 0
+}
+
+// 32byte
+var zeroByteSlice = []byte{
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+}
+
+/*
+ * sm2密文结构如下:
+ *  x
+ *  y
+ *  hash
+ *  CipherText
+ */
+func Encrypt(pub *PublicKey, data []byte) ([]byte, error) {
+	lenx1 := 0
+	leny1 := 0
+	lenx2 := 0
+	leny2 := 0
+	length := len(data)
+	for {
+		c := []byte{}
+		curve := pub.Curve
+		k, err := randFieldElement(curve, rand.Reader)
+		if err != nil {
+			return nil, err
+		}
+		x1, y1 := curve.ScalarBaseMult(k.Bytes())
+		x2, y2 := curve.ScalarMult(pub.X, pub.Y, k.Bytes())
+		lenx1 = len(x1.Bytes())
+		leny1 = len(y1.Bytes())
+		lenx2 = len(x2.Bytes())
+		leny2 = len(y2.Bytes())
+		if lenx1 < 32 {
+			c = append(c, zeroByteSlice[:(32-lenx1)]...)
+		}
+		c = append(c, x1.Bytes()...) // x分量
+		if leny1 < 32 {
+			c = append(c, zeroByteSlice[:(32-leny1)]...)
+		}
+		c = append(c, y1.Bytes()...) // y分量
+		tm := []byte{}
+		if lenx2 < 32 {
+			tm = append(tm, zeroByteSlice[:(32-lenx2)]...)
+		}
+		tm = append(tm, x2.Bytes()...)
+		tm = append(tm, data...)
+		if leny2 < 32 {
+			tm = append(tm, zeroByteSlice[:(32-leny2)]...)
+		}
+		tm = append(tm, y2.Bytes()...)
+		h := sm3.Sm3Sum(tm)
+		c = append(c, h...)
+		ct, ok := kdf(x2.Bytes(), y2.Bytes(), length) // 密文
+		if !ok {
+			continue
+		}
+		c = append(c, ct...)
+		for i := 0; i < length; i++ {
+			c[96+i] ^= data[i]
+		}
+		return c, nil
+	}
+}
+
+func Decrypt(priv *PrivateKey, data []byte) ([]byte, error) {
+	length := len(data) - 96
+	curve := priv.Curve
+	x := new(big.Int).SetBytes(data[:32])
+	y := new(big.Int).SetBytes(data[32:64])
+	x2, y2 := curve.ScalarMult(x, y, priv.D.Bytes())
+	c, ok := kdf(x2.Bytes(), y2.Bytes(), length)
+	if !ok {
+		return nil, errors.New("Decrypt: failed to decrypt")
+	}
+	for i := 0; i < length; i++ {
+		c[i] ^= data[i+96]
+	}
+	tm := []byte{}
+	tm = append(tm, x2.Bytes()...)
+	tm = append(tm, c...)
+	tm = append(tm, y2.Bytes()...)
+	h := sm3.Sm3Sum(tm)
+	if bytes.Compare(h, data[64:96]) != 0 {
+		return c, errors.New("Decrypt: failed to decrypt")
+	}
+	return c, nil
 }
 
 type zr struct {
