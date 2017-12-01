@@ -59,12 +59,8 @@ var (
 )
 
 func main() {
-<<<<<<< HEAD
-	logger.Info("=============== GM orderer start ========================")
-=======
 
 	logger.Info("=============== GM orderer starting ========================")
->>>>>>> develop
 	kingpin.Version("0.0.1")
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
