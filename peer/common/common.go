@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hyperledger/fabric/bccsp/factory"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/factory"
 	"github.com/hyperledger/fabric/common/configtx"
 	configtxapi "github.com/hyperledger/fabric/common/configtx/api"
 	"github.com/hyperledger/fabric/common/errors"

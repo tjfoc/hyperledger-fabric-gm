@@ -26,10 +26,11 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/sw"
-	"github.com/hyperledger/fabric/bccsp/utils"
-	"github.com/hyperledger/fabric/common/flogging"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/sw"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/utils"
+	"github.com/tjfoc/hyperledger-fabric-gm/common/flogging"
+	//"github.com/hyperledger/fabric/common/flogging"
 	"github.com/miekg/pkcs11"
 )
 

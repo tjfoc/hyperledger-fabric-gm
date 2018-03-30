@@ -16,13 +16,15 @@ limitations under the License.
 package gm
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
 	"io"
 	"math/big"
 
-	"github.com/hyperledger/fabric/bccsp"
 	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
 )
 
 // //调用SM2接口生成SM2证书
@@ -59,8 +61,21 @@ import (
 func CreateCertificateToMem(template, parent *sm2.Certificate, key bccsp.Key) (cert []byte, err error) {
 	pk := key.(*gmsm2PrivateKey).privKey
 
-	puk := template.PublicKey.(*sm2.PublicKey)
-	cert, err = sm2.CreateCertificateToMem(template, parent, puk, pk)
+	pub, _ := template.PublicKey.(*ecdsa.PublicKey)
+	switch pub.Curve {
+	case elliptic.P224():
+	case elliptic.P256():
+	case elliptic.P384():
+	case elliptic.P521():
+	case sm2.P256Sm2():
+		var puk sm2.PublicKey
+
+		puk.Curve = sm2.P256Sm2()
+		puk.X = pub.X
+		puk.Y = pub.Y
+		cert, err = sm2.CreateCertificateToMem(template, parent, &puk, pk)
+
+	}
 	return
 }
 

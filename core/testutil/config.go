@@ -26,7 +26,7 @@ import (
 	"github.com/op/go-logging"
 	"github.com/spf13/viper"
 
-	"github.com/hyperledger/fabric/bccsp/factory"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/factory"
 	"github.com/hyperledger/fabric/core/config"
 	"github.com/hyperledger/fabric/msp"
 

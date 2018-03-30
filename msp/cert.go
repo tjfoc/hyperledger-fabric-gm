@@ -19,7 +19,7 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/hyperledger/fabric/bccsp/gm"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm"
 	"github.com/tjfoc/gmsm/sm2"
 )
 

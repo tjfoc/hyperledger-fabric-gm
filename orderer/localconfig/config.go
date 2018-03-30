@@ -31,7 +31,7 @@ import (
 
 	"path/filepath"
 
-	bccsp "github.com/hyperledger/fabric/bccsp/factory"
+	bccsp "github.com/tjfoc/hyperledger-fabric-gm/bccsp/factory"
 )
 
 const (

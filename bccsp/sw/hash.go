@@ -19,7 +19,7 @@ package sw
 import (
 	"hash"
 
-	"github.com/hyperledger/fabric/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
 )
 
 type hasher struct {

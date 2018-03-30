@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/hyperledger/fabric/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
 )
 
 type ECDSASignature struct {

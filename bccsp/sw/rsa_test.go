@@ -26,7 +26,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hyperledger/fabric/bccsp/mocks"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

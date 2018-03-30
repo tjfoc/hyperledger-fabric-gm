@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/hyperledger/fabric/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/csp"
 	"github.com/stretchr/testify/assert"
 )

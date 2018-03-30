@@ -22,7 +22,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hyperledger/fabric/bccsp/factory"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/factory"
 	genesisconfig "github.com/hyperledger/fabric/common/configtx/tool/localconfig"
 
 	"github.com/stretchr/testify/assert"

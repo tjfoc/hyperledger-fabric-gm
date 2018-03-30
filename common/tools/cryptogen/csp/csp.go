@@ -21,9 +21,9 @@ import (
 	"crypto/ecdsa"
 	"crypto/x509"
 
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/factory"
-	"github.com/hyperledger/fabric/bccsp/signer"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/factory"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/signer"
 	"github.com/tjfoc/gmsm/sm2"
 )
 

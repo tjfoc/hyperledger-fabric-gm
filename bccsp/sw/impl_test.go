@@ -35,9 +35,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/signer"
-	"github.com/hyperledger/fabric/bccsp/utils"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/signer"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/utils"
 	"golang.org/x/crypto/sha3"
 )
 

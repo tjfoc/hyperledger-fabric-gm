@@ -30,8 +30,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/gm"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/gm"
 	"github.com/hyperledger/fabric/common/tools/cryptogen/csp"
 	"github.com/tjfoc/gmsm/sm2"
 )

@@ -25,7 +25,7 @@ import (
 
 	"crypto/hmac"
 
-	"github.com/hyperledger/fabric/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
 )
 
 type ecdsaPublicKeyKeyDeriver struct{}

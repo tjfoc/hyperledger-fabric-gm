@@ -22,9 +22,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hyperledger/fabric/bccsp"
-	"github.com/hyperledger/fabric/bccsp/pkcs11"
-	"github.com/hyperledger/fabric/bccsp/sw"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/pkcs11"
+	"github.com/tjfoc/hyperledger-fabric-gm/bccsp/sw"
 )
 
 const (
