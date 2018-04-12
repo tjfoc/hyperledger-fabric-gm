@@ -60,9 +60,13 @@ before_script:
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/orderer
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/peer
  - goimports -w $GOPATH/src/github.com/hyperledger/fabric/protos
+ - echo " CREATING BASE IMAGE "
+ - cd $HOME/gopath/src/github.com/$USER_NAME/$REPO_NAME/scripts && chmod +x foldercopy.sh && ./foldercopy.sh $TR_PULL_REQUEST $USER_NAME $REPO_NAME
+ - sudo rm -rf /var/hyperledger/ && sudo mkdir /var/hyperledger/ && sudo chown $USER:$USER /var/hyperledger
+ - cd /$HOME/gopath/src/github.com/hyperledger/fabric
  - make linter
- - cd $GOPATH/src/github.com/hyperledger/fabric
- - make all
+ #- cd $GOPATH/src/github.com/hyperledger/fabric
+ #- make all
 script:
 
  - echo "Executing Tests"
