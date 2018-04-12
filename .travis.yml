@@ -65,7 +65,7 @@ before_script:
  - sudo rm -rf /var/hyperledger/ && sudo mkdir /var/hyperledger/ && sudo chown $USER:$USER /var/hyperledger
  - cd /$HOME/gopath/src/github.com/hyperledger/fabric
  - systemctl daemon-reload
- - make linter
+ #- make linter
  #- cd $GOPATH/src/github.com/hyperledger/fabric
  #- make all
 script:
