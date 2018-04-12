@@ -96,7 +96,7 @@ pkgmap.cryptogen      := $(PKGNAME)/common/tools/cryptogen
 
 include docker-env.mk
 
-all: native docker
+all: native
 
 checks: spelling linter unit-test behave
 
